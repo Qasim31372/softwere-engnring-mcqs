@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Engineering Level-Based Quiz Portal (7 Levels • 30 MCQs Each)</title>
+<style>
+  :root {
+    --primary: #1B365D;
+    --primary-light: #2563EB;
+    --primary-bg: #EFF6FF;
+    --accent: #F59E0B;
+    --success: #059669;
+    --success-bg: #ECFDF5;
+    --danger: #DC2626;
+    --danger-bg: #FEF2F2;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  body {
+    background-color: #F8FAFC;
+    color: var(--gray-800);
+    line-height: 1.5;
+    padding-bottom: 90px;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #1B365D 0%, #0F172A 100%);
+    color: white;
+    padding: 22px 20px 18px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-title h1 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-title p {
+    font-size: 0.85rem;
+    color: #94A3B8;
+    margin-top: 2px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-submit-lvl {
+    background: #10B981;
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+  }
+  .btn-submit-lvl:hover { background: #059669; transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+  .btn-reset:hover { background: rgba(255, 255, 255, 0.25); }
+
+  /* Level Navigation Map */
+  .level-map-strip {
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 16px 20px;
+  }
+
+  .level-map-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .level-track {
+    display: flex;
+    gap: 12px;
+    min-width: 850px;
+  }
+
+  .level-card {
+    flex: 1;
+    background: #F8FAFC;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    position: relative;
+  }
+
+  .level-card:hover:not(.locked) {
+    border-color: #93C5FD;
+    background: #EFF6FF;
+    transform: translateY(-2px);
+  }
+
+  .level-card.active {
+    border-color: var(--primary-light);
+    background: #EFF6FF;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+  }
+
+  .level-card.locked {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: #F1F5F9;
+  }
+
+  .level-card.completed {
+    border-color: #10B981;
+    background: #F0FDF4;
+  }
+
+  .lvl-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .lvl-badge.status-locked { color: #64748B; }
+  .lvl-badge.status-active { color: #2563EB; }
+  .lvl-badge.status-done { color: #059669; }
+
+  .lvl-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lvl-score {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4B5563;
+    margin-top: 4px;
+  }
+
+  /* Level Header Banner */
+  .level-header-banner {
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 0 20px;
+  }
+
+  .banner-box {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .banner-info h2 {
+    font-size: 1.25rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .banner-info p {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    margin-top: 2px;
+  }
+
+  .banner-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .stat-pill-primary { background: #EFF6FF; color: #1D4ED8; }
+  .stat-pill-success { background: #ECFDF5; color: #047857; }
+  .stat-pill-warning { background: #FFFBEB; color: #B45309; }
+
+  /* Level Score Card (Shown after submitting level) */
+  .level-result-banner {
+    display: none;
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 0 20px;
+  }
+
+  .res-card {
+    background: white;
+    border-radius: 12px;
+    padding: 22px 26px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border: 2px solid var(--primary-light);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .res-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .res-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #EFF6FF;
+    border: 4px solid var(--primary-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .res-circle .pct { font-size: 1.35rem; font-weight: 800; color: var(--primary); line-height: 1; }
+  .res-circle .lbl { font-size: 0.65rem; color: #64748B; font-weight: 700; text-transform: uppercase; }
+
+  .res-text h3 { font-size: 1.3rem; color: var(--gray-900); }
+  .res-text p { font-size: 0.9rem; color: var(--gray-600); margin-top: 3px; }
+
+  .res-metrics {
+    display: flex;
+    gap: 12px;
+  }
+
+  .m-box {
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 80px;
+  }
+  .m-box .val { font-size: 1.25rem; font-weight: 700; }
+  .m-box .lbl { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+  .m-correct { background: var(--success-bg); color: var(--success); }
+  .m-wrong { background: var(--danger-bg); color: var(--danger); }
+  .m-skipped { background: var(--gray-100); color: var(--gray-600); }
+
+  .btn-next-lvl {
+    background: #2563EB;
+    color: white;
+    padding: 12px 24px;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  }
+  .btn-next-lvl:hover { background: #1D4ED8; transform: translateY(-1px); }
+
+  /* Main Layout */
+  .main-layout {
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 992px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .palette-sidebar { display: none; }
+  }
+
+  /* Questions */
+  .questions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .q-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 22px;
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: all 0.2s;
+  }
+
+  .q-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 10px;
+  }
+
+  .q-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    background: #EFF6FF;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .q-cat {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748B;
+    background: var(--gray-100);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .q-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 14px;
+    line-height: 1.45;
+  }
+
+  .options-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .opt-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1.5px solid var(--gray-200);
+    background: white;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.95rem;
+    color: var(--gray-800);
+  }
+
+  .opt-label:hover {
+    border-color: #93C5FD;
+    background: #F8FAFC;
+  }
+
+  .opt-label input[type="radio"] {
+    margin-top: 3px;
+    width: 17px;
+    height: 17px;
+    accent-color: var(--primary-light);
+    cursor: pointer;
+  }
+
+  .opt-label.selected {
+    border-color: var(--primary-light);
+    background: #EFF6FF;
+    font-weight: 500;
+  }
+
+  /* Review States */
+  .opt-label.ans-correct {
+    border-color: #10B981 !important;
+    background: #ECFDF5 !important;
+    color: #065F46 !important;
+    font-weight: 600;
+  }
+
+  .opt-label.ans-wrong {
+    border-color: #EF4444 !important;
+    background: #FEF2F2 !important;
+    color: #991B1B !important;
+    font-weight: 600;
+  }
+
+  .badge-tag {
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .tag-correct { background: #D1FAE5; color: #047857; }
+  .tag-wrong { background: #FEE2E2; color: #B91C1C; }
+
+  /* Explanation */
+  .explanation-box {
+    display: none;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: #F8FAFC;
+    border-left: 4px solid var(--primary);
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    line-height: 1.5;
+  }
+
+  .explanation-box strong {
+    color: var(--primary);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* Palette Sidebar */
+  .palette-sidebar {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 18px;
+    position: sticky;
+    top: 100px;
+  }
+
+  .palette-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--gray-800);
+  }
+
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .palette-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 1px solid var(--gray-300);
+    background: white;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .palette-btn:hover { background: #E2E8F0; }
+  .palette-btn.attempted { background: #3B82F6; color: white; border-color: #2563EB; }
+  .palette-btn.res-correct { background: #10B981 !important; color: white !important; border-color: #059669 !important; }
+  .palette-btn.res-wrong { background: #EF4444 !important; color: white !important; border-color: #DC2626 !important; }
+
+  /* Bottom Submission Bar */
+  .bottom-actions {
+    margin-top: 24px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 480px;
+    width: 100%;
+    padding: 24px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  }
+  .modal-content h3 { font-size: 1.3rem; margin-bottom: 8px; color: var(--gray-900); }
+  .modal-content p { color: var(--gray-600); margin-bottom: 20px; font-size: 0.95rem; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+  .back-to-top {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: var(--primary);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-retry-lvl {
+    background: #F59E0B;
+    color: white;
+    padding: 12px 24px;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+  }
+  .btn-retry-lvl:hover { background: #D97706; transform: translateY(-1px); }
+
+  .btn-locked-lvl {
+    background: #94A3B8;
+    color: white;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+
+  .pass-criteria-badge {
+    background: #FEF3C7;
+    color: #92400E;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <div class="header-title">
+      <h1>🎮 Software Engineering Level-Based Quiz</h1>
+      <p>7 Progressive Levels • Exactly 30 MCQs per Level • Instant Level Unlock & Review</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-submit-lvl" onclick="confirmSubmitLevel()">✔ Complete Level</button>
+      <button class="btn btn-reset" onclick="resetAllProgress()">🔄 Reset All Levels</button>
+    </div>
+  </div>
+</header>
+
+<!-- Level Track Bar -->
+<div class="level-map-strip">
+  <div class="level-map-container">
+    <div class="level-track" id="levelTrack">
+      <!-- 7 Level Cards injected via JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Active Level Header Banner -->
+<div class="level-header-banner">
+  <div class="banner-box">
+    <div class="banner-info">
+      <h2 id="currentLevelTitle">Level 1: Software Foundations & Attributes</h2>
+      <p id="currentLevelDesc">Solve these 30 questions to unlock Level 2!</p>
+    </div>
+    <div class="banner-stats">
+      <span class="pass-criteria-badge">🎯 Pass Requirement: 75% (≥ 23/30)</span>
+      <span class="stat-pill stat-pill-primary" id="lvlAttemptedPill">Answered: 0 / 30</span>
+      <span class="stat-pill stat-pill-warning" id="lvlRemainingPill">Remaining: 30</span>
+    </div>
+  </div>
+</div>
+
+<!-- Level Result Banner (Shown after submit) -->
+<div class="level-result-banner" id="levelResultBanner">
+  <div class="res-card">
+    <div class="res-left">
+      <div class="res-circle">
+        <span class="pct" id="resLvlPct">0%</span>
+        <span class="lbl">Score</span>
+      </div>
+      <div class="res-text">
+        <h3 id="resLvlHeading">Level 1 Completed!</h3>
+        <p id="resLvlMsg">You scored 26 out of 30. Review your answers below!</p>
+      </div>
+    </div>
+    <div class="res-metrics">
+      <div class="m-box m-correct">
+        <div class="val" id="resLvlCorrect">0</div>
+        <div class="lbl">Correct</div>
+      </div>
+      <div class="m-box m-wrong">
+        <div class="val" id="resLvlWrong">0</div>
+        <div class="lbl">Wrong</div>
+      </div>
+      <div class="m-box m-skipped">
+        <div class="val" id="resLvlSkipped">0</div>
+        <div class="lbl">Skipped</div>
+      </div>
+    </div>
+    <button class="btn btn-next-lvl" id="btnNextLevel" onclick="goToNextLevel()">➔ Proceed to Next Level</button>
+  </div>
+</div>
+
+<!-- Main Question Content Area -->
+<div class="main-layout">
+  <div class="questions-container" id="levelQuestionsContainer">
+    <!-- 30 questions of current level -->
+  </div>
+
+  <aside class="palette-sidebar">
+    <div class="palette-title" id="paletteHeading">Level 1 Navigator (Q1-30)</div>
+    <div class="palette-grid" id="levelPaletteGrid">
+      <!-- 30 buttons -->
+    </div>
+  </aside>
+</div>
+
+<!-- Bottom Navigation Bar -->
+<div style="max-width: 1200px; margin: 20px auto 0; padding: 0 20px;">
+  <div class="bottom-actions">
+    <div>
+      <span style="font-weight: 600; color: var(--gray-700);" id="bottomStatusText">Done with this level? Click Complete to view your score & unlock next level.</span>
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-submit-lvl" onclick="confirmSubmitLevel()">✔ Complete & Submit Level</button>
+    </div>
+  </div>
+</div>
+
+<a href="#" class="back-to-top">⬆ Top</a>
+
+<!-- Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-content">
+    <h3>Complete This Level?</h3>
+    <p id="modalMsg">You have answered X of 30 questions. Completing this level will calculate your score. Note: You must score at least 75% (23 out of 30) to unlock the next level. If you score less than 75%, you will need to retake it.</p>
+    <div class="modal-actions">
+      <button class="btn btn-reset" style="color: var(--gray-700); background: var(--gray-200);" onclick="closeModal()">Continue Solving</button>
+      <button class="btn btn-submit-lvl" onclick="submitCurrentLevel()">Yes, Complete Level</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const allQuestions = [{"id": 1, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "What is the primary difference between Software Engineering and Computer Science?", "options": ["Computer science focuses on hardware design; software engineering focuses on code syntax", "Computer science focuses on theory and fundamentals; software engineering is concerned with the practicalities of developing and delivering useful software", "Software engineering is a theoretical branch of mathematics; computer science is purely commercial", "There is no difference; both terms are completely synonymous"], "ans": 1, "exp": "Computer science deals with theories, algorithms, and mathematical foundations, whereas software engineering is an engineering discipline concerned with all practical aspects of software production.", "level": 1, "level_q_num": 1}, {"id": 2, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Software does not wear out in the traditional physical sense like hardware, instead it:", "options": ["Breaks down mechanically due to friction", "Deteriorates over time due to repeated changes, environment updates, and side effects", "Dissolves its internal database structures", "Becomes physically obsolete like vacuum tubes"], "ans": 1, "exp": "Hardware follows the bathtub curve (physical wear and tear). Software does not have moving physical parts; its failure curve spikes when successive uncoordinated changes introduce unforeseen defects (deterioration).", "level": 1, "level_q_num": 2}, {"id": 3, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Which of the following is NOT one of the four essential attributes of professional software according to Sommerville?", "options": ["Maintainability", "Dependability and Security", "Maximum Architectural Complexity", "Acceptability"], "ans": 2, "exp": "The four essential attributes are Maintainability, Dependability & Security, Efficiency, and Acceptability. Professional software must be simple, modular, and maintainable, not maximally complex.", "level": 1, "level_q_num": 3}, {"id": 4, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Software products developed for the general open market where the developer controls the specification are called:", "options": ["Bespoke software", "Generic products", "Embedded firmware", "Legacy software"], "ans": 1, "exp": "Generic products (e.g. word processors, operating systems, graphic packages) are created by a development organization and sold on the open market, where the specification is owned by the developer.", "level": 1, "level_q_num": 4}, {"id": 5, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Software commissioned by a particular customer to satisfy their unique business operations is called:", "options": ["Generic software", "Bespoke (Customized) software", "Off-the-shelf software", "Freeware"], "ans": 1, "exp": "Customized or bespoke software (e.g. an air traffic control system or a custom bank core) is developed specifically for a single client who owns and defines the specification.", "level": 1, "level_q_num": 5}, {"id": 6, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "In long-lifetime commercial software systems, what proportion of total lifetime cost is typically spent on software evolution/maintenance?", "options": ["Less than 10%", "Roughly 20%", "Often 60% or more (maintenance costs frequently exceed development costs)", "Zero, because software maintenance is free"], "ans": 2, "exp": "For critical long-lived systems, software evolution and maintenance costs often account for 60% or more of total lifecycle expenditures.", "level": 1, "level_q_num": 6}, {"id": 7, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "The Personal Insulin Pump system discussed in Chapter 1 is classified as a:", "options": ["Safety-critical real-time embedded system", "High-throughput batch database", "Social media streaming platform", "Stateless cloud microservice"], "ans": 0, "exp": "The insulin pump controls life-critical drug delivery in real-time. System failure can cause hypoglycemia (coma/death) or hyperglycemia, making it safety-critical.", "level": 1, "level_q_num": 7}, {"id": 8, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "In the Insulin Pump system, what is the primary safety requirement when a sensor failure is detected?", "options": ["Inject maximum insulin immediately", "Halt the pump in a safe state, sound an audible alarm, and deliver no excess insulin", "Reformat the flash storage drive", "Wait 24 hours before logging an error"], "ans": 1, "exp": "Safety-critical systems must fail-safe: in case of sensor malfunction, the pump must avoid overdosing and default to a safe halted state while alerting the user.", "level": 1, "level_q_num": 8}, {"id": 9, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "The Mentcare case study primarily illustrates software engineering challenges regarding:", "options": ["3D volumetric polygon rendering", "Patient data privacy, mental health confidentiality laws, and disconnected clinic synchronization", "High-frequency stock trading latency", "Spacecraft re-entry physics"], "ans": 1, "exp": "Mentcare is a mental health patient management system highlighting strict privacy regulations (GDPR/HIPAA), sensitive health records, and synchronization between disconnected rural clinics and central hospitals.", "level": 1, "level_q_num": 9}, {"id": 10, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "In the Wilderness Weather Station case study, the primary operational constraint is:", "options": ["High-speed broadband fibre connectivity", "Autonomous, unattended operation in harsh remote climates powered by solar panels and batteries", "Continuous manual human keyboard inputs", "Liquid nitrogen cooling systems"], "ans": 1, "exp": "Weather stations are deployed in remote mountains/deserts without electrical mains or wired network; they must operate autonomously for months on battery/solar and transmit data via satellite.", "level": 1, "level_q_num": 10}, {"id": 11, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "The iLearn system case study demonstrates:", "options": ["Designing custom hardware microchips", "An integrated digital learning environment using service-oriented integration and COTS components", "An analog radio broadcast network", "A standalone offline desktop spreadsheet"], "ans": 1, "exp": "iLearn integrates cloud-based learning management tools, video streaming, and third-party educational applications using service-oriented architecture.", "level": 1, "level_q_num": 11}, {"id": 12, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Which of the following professional ethics principles dictates that an engineer should never knowingly accept work beyond their technical capability?", "options": ["Confidentiality", "Competence", "Intellectual Property Rights", "Computer Misuse"], "ans": 1, "exp": "The Competence principle states that professionals should not misrepresent their competence and should not knowingly accept work beyond their capability.", "level": 1, "level_q_num": 12}, {"id": 13, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Respecting employer and client trade secrets regardless of whether a formal NDA was signed falls under:", "options": ["Confidentiality", "Efficiency", "Computer Misuse", "Acceptability"], "ans": 0, "exp": "Confidentiality requires engineers to respect client/employer confidentiality at all times as a professional ethical obligation.", "level": 1, "level_q_num": 13}, {"id": 14, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Using one's technical knowledge to write viruses or gain unauthorized access to computer networks is a violation of:", "options": ["Competence", "Maintainability", "Computer Misuse", "Environmental Sustainability"], "ans": 2, "exp": "The Computer Misuse ethical canon states that software engineers must not use their technical skills to misuse other people's computers.", "level": 1, "level_q_num": 14}, {"id": 15, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "What does 'Maintainability' mean as an essential software attribute?", "options": ["The software must never need any updates", "The software should be written so it can evolve easily to meet changing user needs", "The software must execute on only one specific CPU", "The software code is hidden from developers"], "ans": 1, "exp": "Maintainability means software is written clearly, modularly, and with documentation so that evolving requirements can be accommodated without breaking existing features.", "level": 1, "level_q_num": 15}, {"id": 16, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "What does 'Dependability' encompass in software engineering?", "options": ["Only the speed of downloading files", "A range of characteristics including reliability, safety, security, and availability", "The graphical color scheme of buttons", "The total lines of source code written"], "ans": 1, "exp": "Dependability is an umbrella property including reliability, safety, security, and availability.", "level": 1, "level_q_num": 16}, {"id": 17, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Why does software engineering produce diverse types of software using different techniques?", "options": ["Because software engineers cannot agree on a single language", "Because different types of systems have fundamentally different requirements (e.g. an embedded car braking system requires different methods than a casual mobile game)", "Because hardware changes every month", "Because software development has no established theories"], "ans": 1, "exp": "There are no universal software engineering techniques; an embedded safety-critical system requires rigorous formal methods, whereas a web e-commerce app benefits from rapid agile delivery.", "level": 1, "level_q_num": 17}, {"id": 18, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Software engineering is concerned with which phases of software production?", "options": ["Only writing source code (programming)", "Only testing and bug reporting", "All aspects from initial system specification to post-delivery system evolution", "Only sales and marketing"], "ans": 2, "exp": "Software engineering covers the entire software lifecycle from earliest conception and requirements elicitation to long-term operation and evolution.", "level": 1, "level_q_num": 18}, {"id": 19, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "The 'failure curve' of hardware typically resembles what geometric curve?", "options": ["A straight horizontal line", "The 'Bathtub Curve' with high infant mortality and wear-out phase", "An exponential growth parabola", "A decaying sine wave"], "ans": 1, "exp": "Hardware exhibits the bathtub curve: high infant mortality initially, followed by a steady low failure rate, and finally rising failure rates due to physical wear and tear.", "level": 1, "level_q_num": 19}, {"id": 20, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Why is software development often classified as an 'intellectual activity' rather than a manufacturing process?", "options": ["Because once software is written, copying and deploying it costs virtually nothing; the entire cost is in the design and intellectual problem solving", "Because software can only be understood by mathematicians", "Because software cannot be compiled on computers", "Because software does not solve real-world problems"], "ans": 0, "exp": "Hardware manufacturing involves physical factories and raw materials. Software manufacturing is simply bit-duplication; the engineering effort lies entirely in human intellectual design.", "level": 1, "level_q_num": 20}, {"id": 21, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Which of the following is an example of an application where dependability is far more important than fast time-to-market?", "options": ["A prototype mobile photo filter app", "Flight control avionics software for a passenger aircraft", "A promotional marketing landing page", "A casual puzzle video game"], "ans": 1, "exp": "In flight avionics, human lives depend on absolute fault-free operation. Reliability and safety vastly outweigh quick delivery.", "level": 1, "level_q_num": 21}, {"id": 22, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Under the ACM/IEEE Code of Ethics, what is the prime directive regarding the Public Interest?", "options": ["Engineers shall act solely to maximize employer profit", "Software engineers shall act consistently with the public interest", "Engineers must never disclose software errors to anyone", "Engineers should prioritize their own career advancement over user safety"], "ans": 1, "exp": "Principle 1 of the ACM/IEEE Software Engineering Code of Ethics states: Software engineers shall act consistently with the public interest.", "level": 1, "level_q_num": 22}, {"id": 23, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "What is a 'Legacy System' in software engineering?", "options": ["A system that was built yesterday with modern microservices", "An older software system that remains critical to an organization but is difficult to maintain and modify due to outdated technologies", "A system that has no users and has been deleted", "A completely bug-free operating system"], "ans": 1, "exp": "Legacy systems are sociotechnical systems developed in the past that continue to provide business-critical functions but rely on obsolete languages or hardware.", "level": 1, "level_q_num": 23}, {"id": 24, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "In the Mentcare system, why is distributed offline operation essential?", "options": ["Because hospitals have too many internet connections", "Because mental health workers frequently visit patients in rural or home settings where internet connectivity is unavailable", "Because offline systems are immune to all software bugs", "Because mental health records cannot be stored in databases"], "ans": 1, "exp": "Community mental health nurses travel to patients' homes in remote areas; they must record consultation notes locally on laptops and synchronize securely when back at the clinic.", "level": 1, "level_q_num": 24}, {"id": 25, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Which factor has contributed most to the 'Software Crisis' historically?", "options": ["Hardware becoming too expensive", "Software systems growing exponentially in size and complexity while engineering practices failed to keep pace, leading to budget overruns and project failures", "Programming languages becoming obsolete every 2 days", "Developers refusing to work in teams"], "ans": 1, "exp": "The software crisis arose when complex software systems became unmanageable using ad-hoc methods, leading to projects running over budget, late, and defect-ridden.", "level": 1, "level_q_num": 25}, {"id": 26, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Which document defines the professional ethical responsibilities of software engineers worldwide?", "options": ["The ISO 9000 Manual", "The ACM/IEEE-CS Code of Ethics and Professional Practice", "The Agile Manifesto", "The Linux GPL License"], "ans": 1, "exp": "The ACM/IEEE-CS Code of Ethics and Professional Practice defines the ethical standards for professional software engineers.", "level": 1, "level_q_num": 26}, {"id": 27, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "In the Insulin Pump case study, which sensor reading is continuously monitored to calculate the insulin dose?", "options": ["Body temperature sensor", "Blood glucose sensor", "Pulse oximeter", "Blood pressure cuff"], "ans": 1, "exp": "The personal insulin pump measures blood glucose levels via a needle electrode sensor and actuates a micro-stepper motor to deliver the required units of insulin.", "level": 1, "level_q_num": 27}, {"id": 28, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "What is the primary danger of unauthorized modifications (hot-patches) made directly to production software?", "options": ["The server hard drive will immediately explode", "Uncoordinated patches introduce hidden side-effects that degrade architectural integrity and cause unexpected system failures", "It makes the font size smaller in word processors", "It violates hardware warranties"], "ans": 1, "exp": "Quick undocumented patches erode software structure (architectural decay), making subsequent changes progressively more dangerous and error-prone.", "level": 1, "level_q_num": 28}, {"id": 29, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Software engineering principles apply to:", "options": ["Only Python and C++ code", "Only programs with fewer than 100 lines of code", "Systems of all sizes, but are especially vital for large, complex systems developed by teams", "Only academic computer science assignments"], "ans": 2, "exp": "While small hobby programs can be written without formal engineering, disciplined software engineering is essential for large systems where teams collaborate over years.", "level": 1, "level_q_num": 29}, {"id": 30, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "When an engineer discovers that their employer's software could cause bodily harm, their ethical duty is to:", "options": ["Remain silent to protect company share price", "Raise the issue with management, and if ignored, escalate through appropriate professional or regulatory channels", "Delete the code from the server", "Blame other junior programmers"], "ans": 1, "exp": "Public safety is paramount; engineers must report safety hazards to management and escalate appropriately if risks to human life are ignored.", "level": 1, "level_q_num": 30}, {"id": 31, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "In the Wilderness Weather Station, what mechanism is used to update the software remotely?", "options": ["A technician visits the mountain every Monday", "Over-the-air firmware updates via satellite communication links with automated rollback upon verification failure", "The station updates via Wi-Fi from nearby homes", "Firmware can never be updated once deployed"], "ans": 1, "exp": "Because physical access is hazardous and costly, weather stations receive cryptographically signed updates over satellite links, with fail-safe rollback to golden images.", "level": 2, "level_q_num": 1}, {"id": 32, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "What is meant by 'Acceptability' in the context of good software attributes?", "options": ["The software code is accepted by a compiler", "The software must be understandable, usable, and compatible with the target user group's operational environment", "The software is free of charge", "The software is approved by social media"], "ans": 1, "exp": "Software must be acceptable to its intended users: intuitive, reliable, and well-integrated into their daily workflows.", "level": 2, "level_q_num": 2}, {"id": 33, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "In software costs, roughly what percentage of overall software project costs is typically consumed by testing and quality assurance?", "options": ["Less than 1%", "Between 30% and 50% on average (and even higher in critical systems)", "Exactly 100%", "Zero, because compilers perform all testing automatically"], "ans": 1, "exp": "System testing and quality assurance typically consume 30% to 50% of total development expenditure, and up to 80% in safety-critical systems.", "level": 2, "level_q_num": 3}, {"id": 34, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "A software engineer who changes jobs cannot use confidential client algorithms from their previous employer because of:", "options": ["Patent expiry laws", "Intellectual property rights and non-disclosure obligations", "Programming language incompatibility", "Operating system licensing"], "ans": 1, "exp": "Engineers are legally and ethically bound to protect trade secrets and intellectual property of prior employers.", "level": 2, "level_q_num": 4}, {"id": 35, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Why is understanding the application domain (e.g. healthcare, aviation, banking) vital for software engineers?", "options": ["Because domain rules determine functional requirements and non-functional safety/legal constraints", "Because programming languages cannot be learned without domain knowledge", "Because domain experts write all the code", "Because compilers require domain certificates"], "ans": 0, "exp": "Software does not exist in a vacuum; building healthcare software requires medical domain knowledge (regulations, clinical workflows, patient safety) to specify requirements correctly.", "level": 2, "level_q_num": 5}, {"id": 36, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "The iLearn case study is an example of what architectural style?", "options": ["Monolithic mainframe assembly", "Service-Oriented Architecture (SOA) integrating cloud services and APIs", "Client-server without any database", "Peer-to-peer torrent protocol"], "ans": 1, "exp": "iLearn utilizes service-oriented architecture, integrating disparate educational services, forums, and grading tools via standardized web interfaces.", "level": 2, "level_q_num": 6}, {"id": 37, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "In the Mentcare system, who are the primary system stakeholders?", "options": ["Only the server database administrators", "Patients, psychiatrists, community nurses, clinic receptionists, and medical records managers", "Hardware manufacturers only", "Advertising agencies"], "ans": 1, "exp": "Stakeholders include anyone affected by the system: patients, clinicians, nurses, clinic receptionists, and healthcare administrators.", "level": 2, "level_q_num": 7}, {"id": 38, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Which of the following describes a 'System of Systems'?", "options": ["A single desktop laptop", "A complex system composed of multiple independently managed and operated systems working cooperatively to achieve broader capabilities", "A Python script with two functions", "A computer monitor connected to a keyboard"], "ans": 1, "exp": "A System of Systems (SoS) brings together multiple dedicated, autonomous systems (e.g., national air defense, integrated emergency dispatch) to achieve joint objectives.", "level": 2, "level_q_num": 8}, {"id": 39, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "Why does software failure often occur when a successful system is ported to a new operating environment?", "options": ["Because compilers refuse to run on new machines", "Because implicit assumptions about timing, hardware, or external interfaces are violated in the new environment", "Because electrons move slower in modern hardware", "Because user manuals expire"], "ans": 1, "exp": "A classic cause of software catastrophe (such as the Ariane 5 rocket explosion) is reusing software where implicit assumptions valid in the old environment become fatal in the new one.", "level": 2, "level_q_num": 9}, {"id": 40, "category": "Module 1: Introduction, Ethics & Case Studies", "q": "What is the primary objective of software project tracking and control?", "options": ["To spy on developers' keystrokes", "To assess project progress against planned schedules and budget, taking corrective actions when deviations occur", "To eliminate all testing activities", "To replace all developers with AI immediately"], "ans": 1, "exp": "Tracking and control monitors schedule, resource consumption, and deliverables, enabling project managers to apply corrective adjustments before deadlines are missed.", "level": 2, "level_q_num": 10}, {"id": 41, "category": "Module 2: Software Process Models", "q": "Which software process model represents activities as cascading, strictly sequential phases?", "options": ["Spiral Model", "Waterfall Model (Classic Life Cycle)", "Extreme Programming", "Scrum"], "ans": 1, "exp": "The Waterfall model is a linear sequential model where phases (Requirements, Design, Code, Test, Maintenance) flow downwards like a cascade.", "level": 2, "level_q_num": 11}, {"id": 42, "category": "Module 2: Software Process Models", "q": "What is the major drawback of the traditional Waterfall Model?", "options": ["It produces too much working software too early", "It is extremely inflexible in accommodating changing requirements once phases are frozen", "It completely eliminates documentation", "It requires daily customer meetings"], "ans": 1, "exp": "Waterfall locks requirements early; accommodating changes later in the lifecycle is difficult and exorbitantly expensive.", "level": 2, "level_q_num": 12}, {"id": 43, "category": "Module 2: Software Process Models", "q": "In which scenario is the Waterfall model STILL the most appropriate process model?", "options": ["When building an experimental mobile startup game", "When requirements are well-understood, stable, and for safety-critical or large multi-company engineering contracts", "When the client has no idea what the system should do", "When daily releases are demanded by management"], "ans": 1, "exp": "Waterfall excels when requirements are thoroughly understood, stable, and interface specifications must be frozen for hardware coordination or regulatory certification.", "level": 2, "level_q_num": 13}, {"id": 44, "category": "Module 2: Software Process Models", "q": "Incremental Development delivers software by:", "options": ["Delivering the entire 100% finished product in one massive release at the end of 2 years", "Breaking development into a series of increments, where each increment delivers a functional subset of requirements to the customer", "Skipping the testing phase completely", "Writing only documentation without executable code"], "ans": 1, "exp": "Incremental development interleaves specification, development, and validation, delivering early functional increments (starting with core functionality) for rapid user feedback.", "level": 2, "level_q_num": 14}, {"id": 45, "category": "Module 2: Software Process Models", "q": "What is the primary advantage of Incremental Development over the Waterfall model?", "options": ["It requires zero documentation and no planning", "The cost of accommodating changing customer requirements is significantly reduced, and customers receive early business value", "It guarantees zero software defects", "It eliminates the need for testing"], "ans": 1, "exp": "Changes are easier to accommodate because increments are smaller, and users get early hands-on value from core increments.", "level": 2, "level_q_num": 15}, {"id": 46, "category": "Module 2: Software Process Models", "q": "What technical problem inevitably arises in Incremental Development unless disciplined refactoring is practiced?", "options": ["The computer runs out of physical electricity", "System structure degrades (architectural decay / code rot) as successive features are patched on without redesign", "The customer is banned from seeing the software", "Compilers permanently delete files"], "ans": 1, "exp": "Continually bolting new features onto an existing codebase damages software architecture (code entropy) unless developers regularly refactor the code.", "level": 2, "level_q_num": 16}, {"id": 47, "category": "Module 2: Software Process Models", "q": "What distinguishes a Throwaway Prototype from an Evolutionary Prototype?", "options": ["Throwaway prototypes are written in C; evolutionary in Java", "A throwaway prototype is built purely to clarify unclear requirements and is then discarded; an evolutionary prototype evolves into the final delivered system", "Throwaway prototypes are delivered directly to paying customers", "Evolutionary prototypes are always deleted"], "ans": 1, "exp": "Throwaway prototyping explores poorly understood requirements and is discarded so that production code is built cleanly; evolutionary prototyping refines code continuously into the final product.", "level": 2, "level_q_num": 17}, {"id": 48, "category": "Module 2: Software Process Models", "q": "What is the primary danger when presenting a prototype to a non-technical customer?", "options": ["The customer will think the prototype is virtually finished software and demand its immediate deployment into production", "The customer will demand that all code be deleted", "The prototype will destroy the customer's server", "The customer will refuse to pay for the project forever"], "ans": 0, "exp": "Customers often see an interactive GUI prototype and assume the underlying security, validation, and database backends are complete, pressuring teams to ship unfinished code.", "level": 2, "level_q_num": 18}, {"id": 49, "category": "Module 2: Software Process Models", "q": "Barry Boehm's Spiral Model is fundamentally characterized as what type of process model?", "options": ["A documentation-driven waterfall model", "A risk-driven process model with cyclic iterations", "A formal mathematical proof system", "An unstructured ad-hoc hacking model"], "ans": 1, "exp": "Boehm's Spiral model is explicitly risk-driven; each loop around the spiral is dedicated to identifying and eliminating risks before proceeding to the next level of development.", "level": 2, "level_q_num": 19}, {"id": 50, "category": "Module 2: Software Process Models", "q": "What are the four quadrants (sectors) in every loop of Boehm's Spiral Model?", "options": ["1) Objective setting, 2) Risk assessment and reduction, 3) Development and validation, 4) Review and planning next phase", "1) Coding, 2) Compiling, 3) Debugging, 4) Re-running", "1) Inception, 2) Elaboration, 3) Construction, 4) Transition", "1) Hiring, 2) Budgeting, 3) Marketing, 4) Sales"], "ans": 0, "exp": "The 4 sectors in each spiral cycle are: 1) Determine objectives, alternatives, and constraints; 2) Evaluate alternatives and identify/resolve risks; 3) Develop and verify next-level product; 4) Plan next phase.", "level": 2, "level_q_num": 20}, {"id": 51, "category": "Module 2: Software Process Models", "q": "In the Spiral Model, what happens if a major technical risk cannot be resolved during the risk analysis sector?", "options": ["The project continues blindly regardless", "The project may be terminated immediately to avoid catastrophic financial loss", "The developers are forced to work 24 hours a day", "The customer is sued in court"], "ans": 1, "exp": "A key strength of the Spiral model is early project termination: if an unresolvable technical or financial risk is exposed, the project can be cancelled before millions are wasted.", "level": 2, "level_q_num": 21}, {"id": 52, "category": "Module 2: Software Process Models", "q": "Reuse-Oriented Software Engineering (Component-Based Software Engineering - CBSE) focuses primarily on:", "options": ["Writing every algorithm from scratch in C", "Integrating pre-existing commercial off-the-shelf (COTS) components and reusable software services", "Reusing old paper documentation", "Reusing hardware keyboards across employees"], "ans": 1, "exp": "CBSE configures and integrates existing reusable software components and COTS packages, drastically cutting development time and costs.", "level": 2, "level_q_num": 22}, {"id": 53, "category": "Module 2: Software Process Models", "q": "What is a major compromise often required when adopting Reuse-Oriented / COTS software development?", "options": ["Developers must write 10 times more lines of code", "Requirements compromises: users must adapt their business processes to match the capabilities of the off-the-shelf software rather than vice versa", "The software cannot run on modern operating systems", "All automated testing must be disabled"], "ans": 1, "exp": "With COTS reuse, organizations must often accept compromises in requirements because off-the-shelf components dictate workflows and cannot always be customized.", "level": 2, "level_q_num": 23}, {"id": 54, "category": "Module 2: Software Process Models", "q": "In the Rational Unified Process (RUP), what are the four sequential phases?", "options": ["Inception, Elaboration, Construction, Transition", "Planning, Coding, Testing, Shipping", "Requirements, Design, Code, Maintain", "Concept, Prototype, Beta, Release"], "ans": 0, "exp": "The four phases of RUP / Unified Process are Inception (scope & business case), Elaboration (architecture & risks), Construction (coding & testing), and Transition (deployment to users).", "level": 2, "level_q_num": 24}, {"id": 55, "category": "Module 2: Software Process Models", "q": "During the Elaboration phase of the Unified Process, what is the primary engineering deliverable?", "options": ["The final user manual", "A stable, tested architectural baseline that addresses major technical risks", "The marketing launch video", "The client invoice"], "ans": 1, "exp": "The Elaboration phase establishes a robust architectural foundation, validates architectural choices via executable prototypes, and mitigates top technical risks.", "level": 2, "level_q_num": 25}, {"id": 56, "category": "Module 2: Software Process Models", "q": "Capability Maturity Model Integration (CMMI) defines how many levels of organizational process maturity?", "options": ["3 levels", "4 levels", "5 levels", "10 levels"], "ans": 2, "exp": "CMMI defines 5 maturity levels: Level 1 (Initial), Level 2 (Managed), Level 3 (Defined), Level 4 (Quantitatively Managed), and Level 5 (Optimizing).", "level": 2, "level_q_num": 26}, {"id": 57, "category": "Module 2: Software Process Models", "q": "Which CMMI level is characterized by ad-hoc, chaotic processes where project success depends purely on individual heroics?", "options": ["Level 1 (Initial)", "Level 2 (Managed)", "Level 3 (Defined)", "Level 5 (Optimizing)"], "ans": 0, "exp": "At CMMI Level 1 (Initial), processes are ad-hoc, uncontrolled, and reactive; success relies entirely on exceptional individual effort rather than repeatable organizational processes.", "level": 2, "level_q_num": 27}, {"id": 58, "category": "Module 2: Software Process Models", "q": "At CMMI Level 3 (Defined), how are software engineering processes characterized?", "options": ["Processes are undocumented and chaotic", "Processes are well-characterized, understood, and standardized across the entire organization", "Processes are fully automated by artificial intelligence", "Processes are tested only after product delivery"], "ans": 1, "exp": "At Level 3 (Defined), organizational standard processes are established, documented, and institutionalized across projects.", "level": 2, "level_q_num": 28}, {"id": 59, "category": "Module 2: Software Process Models", "q": "What is the defining characteristic of CMMI Level 4 (Quantitatively Managed)?", "options": ["Processes are abandoned completely", "Process performance is controlled using statistical and quantitative quality metrics", "Developers are paid based on lines of code", "Only open-source software is permitted"], "ans": 1, "exp": "At Level 4, organizations collect granular quantitative metrics on sub-processes and use statistical techniques to predict and control software quality.", "level": 2, "level_q_num": 29}, {"id": 60, "category": "Module 2: Software Process Models", "q": "What is the primary focus of CMMI Level 5 (Optimizing)?", "options": ["Continuous, proactive process improvement through incremental and innovative technological changes", "Freezing all organizational processes forever", "Firing all project managers", "Writing code without compilation"], "ans": 0, "exp": "Level 5 (Optimizing) focuses on continuous process improvement by analyzing quantitative feedback and piloting innovative technologies to improve efficiency.", "level": 2, "level_q_num": 30}, {"id": 61, "category": "Module 2: Software Process Models", "q": "In Pressman's Generic Process Model, what are the five core framework activities?", "options": ["Communication, Planning, Modeling, Construction, Deployment", "Writing, Debugging, Testing, Re-testing, Deleting", "Sales, Marketing, HR, Finance, Legal", "Concept, Wireframe, Database, UI, Hosting"], "ans": 0, "exp": "Pressman's five generic framework activities are: Communication (elicitation), Planning (estimation & schedule), Modeling (analysis & design), Construction (code & test), and Deployment (delivery & feedback).", "level": 3, "level_q_num": 1}, {"id": 62, "category": "Module 2: Software Process Models", "q": "What are 'Umbrella Activities' in Pressman's software engineering framework?", "options": ["Activities that take place outdoors in the rain", "Activities applied throughout an entire software project to manage quality, risk, changes, and progress", "Activities conducted exclusively by the CEO", "Activities focused only on hardware maintenance"], "ans": 1, "exp": "Umbrella activities span the entire software lifecycle: Software Project Tracking & Control, Risk Management, Software Quality Assurance, Technical Reviews, SCM, Measurement, and Reusability Management.", "level": 3, "level_q_num": 2}, {"id": 63, "category": "Module 2: Software Process Models", "q": "What does Software Configuration Management (SCM) manage as an umbrella activity?", "options": ["Hardware CPU overclocking settings", "The identification, versioning, change control, and auditing of all software work products (code, docs, tests)", "Office furniture configurations", "Employee desk assignments"], "ans": 1, "exp": "SCM controls changes across all software artifacts, managing version branches, baseline releases, and formal change control board (CCB) approvals.", "level": 3, "level_q_num": 3}, {"id": 64, "category": "Module 2: Software Process Models", "q": "Which process flow proceeds sequentially from communication through deployment without looping back?", "options": ["Linear process flow", "Iterative process flow", "Evolutionary process flow", "Parallel process flow"], "ans": 0, "exp": "A linear process flow executes each framework activity in sequence, one after the other, typical of the classic Waterfall approach.", "level": 3, "level_q_num": 4}, {"id": 65, "category": "Module 2: Software Process Models", "q": "Which process flow executes framework activities simultaneously across multiple functional subsystems?", "options": ["Linear process flow", "Parallel process flow", "Waterfall process flow", "Static process flow"], "ans": 1, "exp": "Parallel process flow executes distinct project activities (e.g., frontend modeling and backend database construction) concurrently.", "level": 3, "level_q_num": 5}, {"id": 66, "category": "Module 2: Software Process Models", "q": "What is the V-Model of software development?", "options": ["A model designed exclusively for Virtual Reality", "A variation of the Waterfall model that explicitly couples each development phase with its corresponding verification/testing phase", "A model that develops software in a circular loop", "A model that requires two programming languages"], "ans": 1, "exp": "The V-Model visualizes development descending on the left (Requirements, Architecture, Module Design) and testing ascending on the right (Unit, Integration, System, Acceptance testing).", "level": 3, "level_q_num": 6}, {"id": 67, "category": "Module 2: Software Process Models", "q": "In the V-Model, which testing activity corresponds directly to the System Requirements Specification (SRS)?", "options": ["Unit testing", "Module testing", "System Testing / Acceptance Testing", "Micro-benchmark testing"], "ans": 2, "exp": "System testing verifies that the integrated system fulfills the overall functional and non-functional requirements specified in the SRS.", "level": 3, "level_q_num": 7}, {"id": 68, "category": "Module 2: Software Process Models", "q": "The Concurrent Development Model is best described as:", "options": ["A model where developers type on two keyboards at once", "A model that defines a network of activities in various states (e.g. inactive, under development, under review, baseline) moving concurrently", "A model that operates without servers", "A model where only one person works on a project"], "ans": 1, "exp": "The concurrent model represents process activities as a state-machine where different activities exist simultaneously in different states (e.g., modeling is awaiting changes while construction is active).", "level": 3, "level_q_num": 8}, {"id": 69, "category": "Module 2: Software Process Models", "q": "What is a major limitation of formal methods (mathematical specification) process models?", "options": ["They produce code with many syntax errors", "They require highly specialized mathematical expertise, are extremely expensive, and difficult to communicate to non-technical clients", "They cannot be used on computers", "They eliminate all documentation"], "ans": 1, "exp": "Formal methods provide mathematical verification of correctness (crucial for safety-critical aviation/rail systems), but their extreme cost and mathematical complexity make them impractical for mainstream commercial systems.", "level": 3, "level_q_num": 9}, {"id": 70, "category": "Module 2: Software Process Models", "q": "Aspect-Oriented Software Development (AOSD) focuses on:", "options": ["Changing the screen aspect ratio of apps", "Modularizing cross-cutting concerns (e.g. security, logging, transaction management) that span multiple system components", "Writing software exclusively in HTML", "Developing software on mobile devices only"], "ans": 1, "exp": "AOSD provides mechanisms to isolate cross-cutting concerns (features that affect many classes, like logging or authentication) into distinct aspects.", "level": 3, "level_q_num": 10}, {"id": 71, "category": "Module 2: Software Process Models", "q": "Why is the Prototyping model NOT recommended as an entire standalone lifecycle for safety-critical systems?", "options": ["Because prototypes are too expensive", "Because rapid prototyping tends to overlook deep non-functional attributes like fault-tolerance, formal security, and comprehensive verification", "Because prototypes cannot display graphics", "Because prototypes can only be written in Python"], "ans": 1, "exp": "Prototypes prioritize quick visible functionality over non-functional robustness, formal error handling, and exhaustive regulatory documentation.", "level": 3, "level_q_num": 11}, {"id": 72, "category": "Module 2: Software Process Models", "q": "In a plan-driven process, what is the primary mechanism used to measure project progress?", "options": ["Number of bugs fixed per hour", "Comparing executed project activities and produced deliverables against the pre-established project plan", "Total lines of code written", "Customer happiness on social media"], "ans": 1, "exp": "Plan-driven processes define schedules and milestones in advance; progress is measured by checking completed deliverables against the baseline project plan.", "level": 3, "level_q_num": 12}, {"id": 73, "category": "Module 2: Software Process Models", "q": "In agile processes, how is project progress primarily measured?", "options": ["By the weight of printed documentation", "By working, tested, functional software delivered to users", "By the number of meetings held", "By total budget spent"], "ans": 1, "exp": "Principle 7 of the Agile Manifesto states: 'Working software is the primary measure of progress.'", "level": 3, "level_q_num": 13}, {"id": 74, "category": "Module 2: Software Process Models", "q": "What happens during the Transition phase of the Unified Process?", "options": ["Requirements are elicited from scratch", "The software product is transferred from the development environment to the end-user production environment (beta testing, training, deployment)", "The company is sold to a competitor", "The source code is deleted"], "ans": 1, "exp": "The Transition phase encompasses beta testing, user training, data migration, and full operational rollout to production.", "level": 3, "level_q_num": 14}, {"id": 75, "category": "Module 2: Software Process Models", "q": "Why do commercial software systems often combine elements of different process models (hybrid models)?", "options": ["Because software engineers are indecisive", "Because different subsystems have different risk profiles (e.g. stable critical accounting backend uses Waterfall, while experimental customer UI uses Agile/Prototyping)", "Because combining models is required by law", "Because compilers require multiple models"], "ans": 1, "exp": "Real-world engineering pragmaticism dictates using hybrid approaches: rigorous plan-driven engineering for safety/financial cores, and agile/prototyping for fast-changing frontends.", "level": 3, "level_q_num": 15}, {"id": 76, "category": "Module 2: Software Process Models", "q": "Which process model is specifically designed around the concept of 'Risk-Driven' development?", "options": ["Waterfall Model", "Barry Boehm's Spiral Model", "Rapid Application Development", "Cleanroom Software Engineering"], "ans": 1, "exp": "The hallmark of Barry Boehm's Spiral model is its explicit risk-driven foundation: risk analysis governs every single cycle.", "level": 3, "level_q_num": 16}, {"id": 77, "category": "Module 2: Software Process Models", "q": "What is a 'Milestone' in a software process?", "options": ["A large rock placed in the server room", "A recognizable, documented point of progress that marks the completion of a distinct project deliverable or phase", "The date when the developer resigns", "A measurement of network cable length"], "ans": 1, "exp": "Milestones are formal project checkpoints where progress is verified and management reviews whether criteria have been met to proceed.", "level": 3, "level_q_num": 17}, {"id": 78, "category": "Module 2: Software Process Models", "q": "What is a major risk when using commercial off-the-shelf (COTS) software in mission-critical applications?", "options": ["COTS software is always free of cost", "The organization lacks source code control and is vulnerable to vendor lock-in, vendor discontinuation, or unpatched third-party vulnerabilities", "COTS software runs too fast for computers", "COTS software cannot store numbers"], "ans": 1, "exp": "With COTS, you depend on an external vendor; if the vendor goes out of business, changes APIs, or refuses to fix security flaws, your entire system is compromised.", "level": 3, "level_q_num": 18}, {"id": 79, "category": "Module 2: Software Process Models", "q": "In Pressman's framework, which umbrella activity is responsible for managing risks throughout the project?", "options": ["Software Quality Assurance", "Formal Technical Reviews", "Risk Management (identification, assessment, mitigation, monitoring)", "Work product preparation"], "ans": 2, "exp": "Risk management anticipates potential technical, financial, or personnel disruptions, assessing their impact and establishing mitigation strategies.", "level": 3, "level_q_num": 19}, {"id": 80, "category": "Module 2: Software Process Models", "q": "The term 'Code Rot' or 'Architectural Erosion' refers to:", "options": ["Physical decay of server motherboards", "The progressive degradation of software structural integrity, modularity, and readability caused by repeated undocumented modifications", "A computer virus that eats files", "The expiration of a software copyright license"], "ans": 1, "exp": "Repeatedly patching code without architectural refactoring causes structural entropy, making the codebase fragile, tightly coupled, and difficult to maintain.", "level": 3, "level_q_num": 20}, {"id": 81, "category": "Module 2: Software Process Models", "q": "Which software development methodology emphasizes building a series of rapid prototypes specifically to evaluate user interface layouts?", "options": ["Cleanroom Engineering", "Throwaway Prototyping for Requirements Elicitation", "Formal Methods Verification", "Linear Sequential Model"], "ans": 1, "exp": "Throwaway prototyping is used during requirements elicitation to give users tactile experience with UI concepts, confirming needs before engineering begins.", "level": 3, "level_q_num": 21}, {"id": 82, "category": "Module 2: Software Process Models", "q": "What is the primary role of Formal Technical Reviews (FTR) as an umbrella activity?", "options": ["To criticize developers' personal habits", "To uncover errors in function, logic, or implementation early in development before they propagate to testing", "To negotiate employee salary raises", "To write marketing press releases"], "ans": 1, "exp": "FTRs (code walkthroughs, inspections) catch defects early in design and code, where fixing them is 10 to 100 times cheaper than fixing them in post-release testing.", "level": 3, "level_q_num": 22}, {"id": 83, "category": "Module 2: Software Process Models", "q": "In CMMI, what does 'Process Capability' measure?", "options": ["The maximum typing speed of developers", "The range of expected results that can be achieved by following a defined software process", "The total RAM of the company's servers", "The physical building capacity of the engineering office"], "ans": 1, "exp": "Process capability indicates an organization's maturity and consistency in predictably achieving quality, schedule, and cost targets.", "level": 3, "level_q_num": 23}, {"id": 84, "category": "Module 2: Software Process Models", "q": "Which model is best suited when a project involves novel, untried AI technology, extreme budget, and immense technical uncertainty?", "options": ["Classic Waterfall", "Barry Boehm's Spiral Model", "Rapid Linear Sequencing", "Single-developer ad-hoc coding"], "ans": 1, "exp": "The Spiral Model was explicitly created to navigate high-risk, expensive, and technically uncertain endeavors through iterative risk evaluation and simulation.", "level": 3, "level_q_num": 24}, {"id": 85, "category": "Module 2: Software Process Models", "q": "What is the main reason why the Waterfall model's testing phase is often severely compressed in real projects?", "options": ["Because testing is considered unnecessary by engineers", "Because delays in early phases (requirements, design, coding) accumulate, squeezing the remaining time before the fixed delivery deadline", "Because automated tools eliminate all bugs in 1 minute", "Because clients forbid developers from running tests"], "ans": 1, "exp": "In linear schedules with a fixed deadline, any slippage in upfront phases eats directly into the testing window at the end, leading to defect-ridden software releases.", "level": 3, "level_q_num": 25}, {"id": 86, "category": "Module 3: Agile Development & Scrum", "q": "The Agile Manifesto was authored in 2001 by 17 software practitioners in which location?", "options": ["Silicon Valley, California", "Snowbird, Utah", "Cambridge, UK", "Seattle, Washington"], "ans": 1, "exp": "The Agile Manifesto was formulated in February 2001 at the Snowbird ski resort in Utah by 17 software development thought leaders.", "level": 3, "level_q_num": 26}, {"id": 87, "category": "Module 3: Agile Development & Scrum", "q": "Which of the following is an exact core value stated in the Agile Manifesto?", "options": ["Comprehensive documentation over working software", "Contract negotiation over customer collaboration", "Responding to change over following a plan", "Processes and tools over individuals and interactions"], "ans": 2, "exp": "The four Agile values are: Individuals and interactions OVER processes and tools; Working software OVER comprehensive documentation; Customer collaboration OVER contract negotiation; Responding to change OVER following a plan.", "level": 3, "level_q_num": 27}, {"id": 88, "category": "Module 3: Agile Development & Scrum", "q": "According to the Agile Manifesto, what is valued OVER processes and tools?", "options": ["Contract negotiations", "Individuals and interactions", "Detailed project plans", "Strict hierarchical management"], "ans": 1, "exp": "The first core value states: 'Individuals and interactions over processes and tools.'", "level": 3, "level_q_num": 28}, {"id": 89, "category": "Module 3: Agile Development & Scrum", "q": "According to the Agile Manifesto, what is valued OVER contract negotiation?", "options": ["Customer collaboration", "Strict legal enforcement", "Detailed Gantt charts", "Fixed-price milestone billing"], "ans": 0, "exp": "The third core value states: 'Customer collaboration over contract negotiation.'", "level": 3, "level_q_num": 29}, {"id": 90, "category": "Module 3: Agile Development & Scrum", "q": "In Scrum, what are the three defined roles?", "options": ["Project Manager, Lead Architect, QA Tester", "Product Owner, Scrum Master, Development Team", "CEO, CTO, Lead Programmer", "Business Analyst, Developer, System Administrator"], "ans": 1, "exp": "The Scrum framework defines exactly three roles: Product Owner, Scrum Master, and Development Team.", "level": 3, "level_q_num": 30}, {"id": 91, "category": "Module 3: Agile Development & Scrum", "q": "Who is exclusively responsible for managing and prioritizing items in the Product Backlog?", "options": ["Scrum Master", "Development Team", "Product Owner", "External Stakeholders"], "ans": 2, "exp": "The Product Owner has sole ownership and authority over the Product Backlog, ordering items to maximize business value and return on investment.", "level": 4, "level_q_num": 1}, {"id": 92, "category": "Module 3: Agile Development & Scrum", "q": "What is the primary responsibility of the Scrum Master?", "options": ["Assigning daily programming tasks to individual developers", "Acting as a servant-leader, coaching the team in Scrum practices, and removing impediments (blockers)", "Writing all functional code for the frontend", "Negotiating client contracts and budgets"], "ans": 1, "exp": "The Scrum Master is not a traditional manager; they facilitate ceremonies, shield the team from external distractions, and eliminate organizational impediments.", "level": 4, "level_q_num": 2}, {"id": 93, "category": "Module 3: Agile Development & Scrum", "q": "The Development Team in Scrum is recommended to be:", "options": ["Separated into distinct siloed departments (e.g. 5 testers in one room, 5 coders in another)", "Self-organizing and cross-functional (possessing all skills needed to deliver a shippable increment)", "Composed of at least 100 developers", "Managed by an external supervisor who assigns tasks daily"], "ans": 1, "exp": "Scrum teams are cross-functional (developers, testers, designers work together) and self-organizing (the team decides how to accomplish the committed sprint backlog).", "level": 4, "level_q_num": 3}, {"id": 94, "category": "Module 3: Agile Development & Scrum", "q": "What is the typical recommended duration of a Scrum Sprint?", "options": ["6 to 12 months", "1 day", "2 to 4 weeks", "Exactly 100 days"], "ans": 2, "exp": "A Sprint is a fixed-duration timebox, typically lasting between 2 and 4 weeks, delivering a potentially shippable increment.", "level": 4, "level_q_num": 4}, {"id": 95, "category": "Module 3: Agile Development & Scrum", "q": "What are the four formal ceremonies (events) in Scrum?", "options": ["Inception, Design, Code, Test", "Sprint Planning, Daily Scrum, Sprint Review, Sprint Retrospective", "Interview, Evaluation, Promotion, Firing", "Backlog Creation, Gantt Review, Milestone Sign-off, Audit"], "ans": 1, "exp": "The four formal Scrum events are: Sprint Planning, Daily Scrum, Sprint Review, and Sprint Retrospective.", "level": 4, "level_q_num": 5}, {"id": 96, "category": "Module 3: Agile Development & Scrum", "q": "What is the timebox and purpose of the Daily Scrum (Stand-up) meeting?", "options": ["1 hour to debate architectural designs", "15 minutes to synchronize daily activities, answer the 3 questions, and identify impediments", "30 minutes for the manager to assign tasks", "2 hours to review client billing"], "ans": 1, "exp": "The Daily Scrum is strictly timeboxed to 15 minutes for team synchronization and identifying impediments.", "level": 4, "level_q_num": 6}, {"id": 97, "category": "Module 3: Agile Development & Scrum", "q": "What are the three questions answered by team members during a Daily Scrum?", "options": ["1) What did I do yesterday? 2) What will I do today? 3) What impediments are blocking my progress?", "1) How much code did I write? 2) Who broke the build? 3) When can I go home?", "1) What is my salary? 2) Are tests passing? 3) What is the deadline?", "1) Who is to blame? 2) Did the client pay? 3) Can we cancel the sprint?"], "ans": 0, "exp": "The 3 daily standup questions focus on yesterday's achievements, today's planned work, and any blockers needing the Scrum Master's attention.", "level": 4, "level_q_num": 7}, {"id": 98, "category": "Module 3: Agile Development & Scrum", "q": "What is the difference between the Sprint Review and the Sprint Retrospective?", "options": ["Sprint Review is for firing developers; Retrospective is for hiring new ones", "Sprint Review inspects the working product increment with stakeholders; Sprint Retrospective inspects the team's internal process and interactions to improve efficiency", "Sprint Review happens before the sprint; Retrospective happens during the sprint", "There is no difference; they are duplicate meetings"], "ans": 1, "exp": "Sprint Review focuses on the PRODUCT (demoing working features to stakeholders). Sprint Retrospective focuses on the PROCESS (internal team reflection on tools, communication, and workflow).", "level": 4, "level_q_num": 8}, {"id": 99, "category": "Module 3: Agile Development & Scrum", "q": "In Scrum, what is the 'Definition of Done' (DoD)?", "options": ["A statement by a developer saying 'it compiles on my laptop'", "A formal shared checklist of quality criteria that an increment must satisfy to be deemed potentially shippable (e.g. tested, reviewed, documented, integrated)", "The date when the project contract expires", "The moment the client signs the final payment invoice"], "ans": 1, "exp": "The Definition of Done ensures quality transparency: an item cannot be marked done unless it meets all agreed criteria (unit tests passed, peer reviewed, zero critical bugs).", "level": 4, "level_q_num": 9}, {"id": 100, "category": "Module 3: Agile Development & Scrum", "q": "What does a Sprint Burndown Chart display?", "options": ["The physical temperature of the server CPU", "The amount of remaining work (in story points or hours) versus elapsed time in the sprint", "The amount of money burned by the company", "The number of lines of code deleted"], "ans": 1, "exp": "The burndown chart plots remaining story points day-by-day against an ideal trajectory, showing whether the team is on track to achieve the sprint goal.", "level": 4, "level_q_num": 10}, {"id": 101, "category": "Module 3: Agile Development & Scrum", "q": "What is 'Velocity' in Scrum?", "options": ["The speed of internet connectivity in the office", "The amount of work (in story points) a development team completes and marks Done during an average sprint", "The typing speed of the lead programmer", "The rate at which bugs are filed by users"], "ans": 1, "exp": "Team velocity measures the historical average of story points delivered per sprint, used to forecast capacity during future Sprint Planning.", "level": 4, "level_q_num": 11}, {"id": 102, "category": "Module 3: Agile Development & Scrum", "q": "Can the Product Owner change the Sprint Backlog in the middle of an active Sprint?", "options": ["Yes, the PO can change tasks every day at will", "No, once the Sprint Goal is committed, the Sprint Backlog is frozen to protect the team from scope disruption", "Only if the Scrum Master is fired", "Yes, but only on weekends"], "ans": 1, "exp": "To preserve focus, work cannot be injected into an active sprint. The PO adds new ideas to the Product Backlog for prioritization in the subsequent sprint.", "level": 4, "level_q_num": 12}, {"id": 103, "category": "Module 3: Agile Development & Scrum", "q": "Under what extreme circumstance can an active Sprint be cancelled before its timebox expires?", "options": ["When a developer is sick", "Only by the Product Owner, if the Sprint Goal becomes completely obsolete or irrelevant to the business", "If it rains on a sprint day", "Whenever developers vote to take a vacation"], "ans": 1, "exp": "Only the Product Owner has the authority to cancel a sprint, and only if the sprint goal has become obsolete due to major market, competitor, or technology shifts.", "level": 4, "level_q_num": 13}, {"id": 104, "category": "Module 3: Agile Development & Scrum", "q": "In Extreme Programming (XP), what is 'Pair Programming'?", "options": ["Two developers working on separate laptops in different rooms", "Two programmers working collaboratively at one single workstation, where one (the Driver) types code while the other (the Navigator) reviews each line in real-time", "Two developers sharing a single salary", "A developer and a client coding together"], "ans": 1, "exp": "In pair programming, the Driver writes code while the Navigator checks logic, catches bugs, and thinks strategically, swapping roles frequently.", "level": 4, "level_q_num": 14}, {"id": 105, "category": "Module 3: Agile Development & Scrum", "q": "What is Test-Driven Development (TDD) in Extreme Programming?", "options": ["Testing software only after it has been shipped to customers", "Writing automated unit tests BEFORE writing the actual functional code, watching the test fail, and then writing minimal code to make it pass", "Testing code manually without any automated tools", "Letting users write their own test cases"], "ans": 1, "exp": "TDD follows the Red-Green-Refactor cycle: write an automated failing test first, write the simplest code to pass the test, then refactor for clean design.", "level": 4, "level_q_num": 15}, {"id": 106, "category": "Module 3: Agile Development & Scrum", "q": "What is 'Refactoring' in agile engineering?", "options": ["Adding 5 new features to the software", "Restructuring existing code to improve internal structure, readability, and maintainability without altering its external behavior", "Rewriting the user manual in another language", "Deleting all unit tests"], "ans": 1, "exp": "Refactoring cleans up code, removes duplication, and simplifies architecture without changing what the software actually does for the end user.", "level": 4, "level_q_num": 16}, {"id": 107, "category": "Module 3: Agile Development & Scrum", "q": "Continuous Integration (CI) requires developers to:", "options": ["Keep code on their local laptops for 6 months before sharing", "Integrate their code into a shared mainline repository frequently (often multiple times per day), verified by automated builds and tests", "Only commit code on the final day of the project", "Never write automated unit tests"], "ans": 1, "exp": "CI avoids 'integration hell' by continuously merging code into a main branch where automated testing immediately flags build failures or regressions.", "level": 4, "level_q_num": 17}, {"id": 108, "category": "Module 3: Agile Development & Scrum", "q": "In Scrum, who is responsible for estimating the effort (story points) required to complete a user story?", "options": ["The Product Owner alone", "The Scrum Master alone", "The Development Team members who will do the actual work", "The CEO of the client company"], "ans": 2, "exp": "Only the Development Team members estimate effort, because they are the engineers executing the work.", "level": 4, "level_q_num": 18}, {"id": 109, "category": "Module 3: Agile Development & Scrum", "q": "What is a 'User Story' in agile development?", "options": ["A bedtime story written for developers", "A short, simple description of a feature told from the perspective of the end user, typically written as: 'As a [role], I want [feature] so that [benefit]'", "A 500-page formal system specification", "A legal complaint filed by a customer"], "ans": 1, "exp": "User stories describe user needs conversationally: 'As a [user type], I want to [action] so that [business value]'.", "level": 4, "level_q_num": 19}, {"id": 110, "category": "Module 3: Agile Development & Scrum", "q": "What is 'Planning Poker' in agile estimation?", "options": ["A card game played for real money during lunch", "A consensus-based estimation technique where developers reveal numbered cards simultaneously to estimate story points without anchoring bias", "A poker game between the CEO and the client", "A gambling algorithm embedded in games"], "ans": 1, "exp": "Planning Poker uses cards (Fibonacci sequence: 1, 2, 3, 5, 8, 13...) played face-down to prevent team members from biasing each other's estimates.", "level": 4, "level_q_num": 20}, {"id": 111, "category": "Module 3: Agile Development & Scrum", "q": "What is 'Timeboxing' in Scrum?", "options": ["Placing computer clocks inside protective boxes", "Allocating a strictly fixed maximum unit of time for an activity or event (e.g. 15 mins for standup, 2 weeks for sprint) which cannot be extended", "Working only during daytime hours", "Delaying a project until next year"], "ans": 1, "exp": "Timeboxing sets a hard boundary: whether the meeting or sprint finishes early or work remains, the timebox terminates on schedule to enforce focus.", "level": 4, "level_q_num": 21}, {"id": 112, "category": "Module 3: Agile Development & Scrum", "q": "Why is Agile less suitable for projects with geographically distributed teams having zero communication overlap?", "options": ["Because agile requires daily physical exercise", "Because agile relies heavily on high-bandwidth informal communication and rapid collaboration, which is hindered by severe timezone and language barriers", "Because agile software cannot be sent across borders", "Because the Agile Manifesto bans internet usage"], "ans": 1, "exp": "Agile prioritizes face-to-face and continuous conversation; when teams cannot communicate synchronously, plan-driven documentation-heavy models are often needed.", "level": 4, "level_q_num": 22}, {"id": 113, "category": "Module 3: Agile Development & Scrum", "q": "What is the 'Product Increment' in Scrum?", "options": ["The monthly invoice sent to the client", "The sum of all completed, tested Product Backlog items at the end of a sprint that meet the Definition of Done", "A list of future ideas for the next year", "A marketing presentation without code"], "ans": 1, "exp": "The Increment is the inspectable, usable, tested working software delivered at sprint end.", "level": 4, "level_q_num": 23}, {"id": 114, "category": "Module 3: Agile Development & Scrum", "q": "What does 'YAGNI' stand for in Extreme Programming principles?", "options": ["You Always Get New Ideas", "You Aren't Gonna Need It (do not add speculative functionality until actually needed)", "Your Architecture Generates New Interfaces", "Yield All Gains Next Iteration"], "ans": 1, "exp": "YAGNI cautions developers against over-engineering: only implement features currently required, avoiding speculative complexity.", "level": 4, "level_q_num": 24}, {"id": 115, "category": "Module 3: Agile Development & Scrum", "q": "What is 'Technical Debt' in agile projects?", "options": ["The monetary loan taken from a bank to buy servers", "The implied cost of additional future rework caused by choosing an easy, fast, hacky solution now instead of a better, cleaner approach", "Salary owed to developers", "The cost of printing user manuals"], "ans": 1, "exp": "Technical debt accrues when teams cut corners for fast release; like financial debt, it accumulates 'interest' making future development slower until paid down by refactoring.", "level": 4, "level_q_num": 25}, {"id": 116, "category": "Module 3: Agile Development & Scrum", "q": "In Scrum, who decides HOW the work in the Sprint Backlog will be engineered?", "options": ["The Product Owner", "The Development Team", "The Scrum Master", "External stakeholders"], "ans": 1, "exp": "The Product Owner defines WHAT needs to be built, but the Development Team self-organizes and determines HOW to build it technically.", "level": 4, "level_q_num": 26}, {"id": 117, "category": "Module 3: Agile Development & Scrum", "q": "What happens to unfinished user stories at the end of a Sprint?", "options": ["They are automatically marked Done anyway", "They are returned to the Product Backlog, re-estimated, and prioritized for upcoming sprints", "They are permanently deleted from the project", "The developers are penalized financially"], "ans": 1, "exp": "Incomplete items cannot be counted in velocity; they return to the Product Backlog for re-estimation and re-prioritization.", "level": 4, "level_q_num": 27}, {"id": 118, "category": "Module 3: Agile Development & Scrum", "q": "Why does Agile emphasize automated regression testing?", "options": ["Because automated tests allow developers to sleep during working hours", "Because rapid, continuous code modifications require instant verification that new changes did not break existing functionality", "Because manual testing is illegal in agile", "Because automated tests write functional code automatically"], "ans": 1, "exp": "Continuous delivery without automated regression tests causes software to break repeatedly under rapid iterations.", "level": 4, "level_q_num": 28}, {"id": 119, "category": "Module 3: Agile Development & Scrum", "q": "What is a 'Spike' in Scrum/Agile terminology?", "options": ["A sharp drop on the burndown chart", "A timeboxed research or exploratory prototype task used to investigate an unknown technology or clarify requirements before estimation", "A bug that crashes the production server", "A heated argument in a meeting"], "ans": 1, "exp": "A Spike is a short, timeboxed exploration used when a story cannot be estimated due to missing technical information.", "level": 4, "level_q_num": 29}, {"id": 120, "category": "Module 3: Agile Development & Scrum", "q": "Which Agile practice involves writing user acceptance tests that serve as both automated test cases and executable requirements?", "options": ["Behavior-Driven Development (BDD) / Acceptance Test-Driven Development (ATDD)", "Waterfall phased documentation", "Manual exploratory testing", "Code obfuscation"], "ans": 0, "exp": "BDD/ATDD writes human-readable scenarios ('Given, When, Then') that act as living documentation and automated test suites.", "level": 4, "level_q_num": 30}, {"id": 121, "category": "Module 3: Agile Development & Scrum", "q": "What is the primary role of the customer representative (on-site customer) in Extreme Programming?", "options": ["To inspect daily timesheets of developers", "To be continuously available to answer domain questions, clarify user stories, and evaluate progress", "To write C++ code directly", "To negotiate supplier contracts"], "ans": 1, "exp": "XP advocates an on-site customer so that ambiguity in requirements is resolved in minutes through direct face-to-face conversation.", "level": 5, "level_q_num": 1}, {"id": 122, "category": "Module 3: Agile Development & Scrum", "q": "Which of the following is NOT one of the 12 Principles behind the Agile Manifesto?", "options": ["Welcome changing requirements, even late in development", "Deliver working software frequently, from a couple of weeks to a couple of months", "Enforce strict documentation sign-offs before any programming begins", "Build projects around motivated individuals"], "ans": 2, "exp": "Agile explicitly discourages heavy upfront documentation gatekeeping that blocks early coding.", "level": 5, "level_q_num": 2}, {"id": 123, "category": "Module 3: Agile Development & Scrum", "q": "How does Scrum handle documentation?", "options": ["Scrum bans all forms of documentation permanently", "Documentation is produced just-in-time when it provides clear, verifiable business value, prioritizing working software over excessive manuals", "Documentation must be 1000 pages long before coding", "Documentation is written only by clients"], "ans": 1, "exp": "Agile does not eliminate documentation; it eliminates wasteful, speculative documentation that goes unread and quickly becomes obsolete.", "level": 5, "level_q_num": 3}, {"id": 124, "category": "Module 3: Agile Development & Scrum", "q": "What is an 'Epics' in Agile backlog hierarchies?", "options": ["A classical poem written by engineers", "A large user story that cannot be delivered in a single sprint and must be broken down into smaller, actionable user stories", "A software crash that destroys a database", "A celebration at the end of a project"], "ans": 1, "exp": "An Epic is a broad high-level requirement that is sliced into multiple smaller user stories during backlog grooming.", "level": 5, "level_q_num": 4}, {"id": 125, "category": "Module 3: Agile Development & Scrum", "q": "What is the primary benefit of small, frequent releases in Agile development?", "options": ["Increases the number of press releases published", "Minimizes deployment risk, accelerates time-to-market, and generates rapid, genuine feedback from real end-users", "Eliminates the need to pay developers", "Guarantees that hardware will never fail"], "ans": 1, "exp": "Small, frequent deployments mean small, manageable changes, lowering operational risk and providing continuous feedback.", "level": 5, "level_q_num": 5}, {"id": 126, "category": "Module 3: Agile Development & Scrum", "q": "In Scrum, who protects the development team from external management interruptions during a Sprint?", "options": ["The Product Owner", "The Scrum Master", "The Chief Executive Officer", "The Lead Database Architect"], "ans": 1, "exp": "A critical duty of the Scrum Master is serving as a shield, preventing managers or stakeholders from disrupting the team's committed sprint focus.", "level": 5, "level_q_num": 6}, {"id": 127, "category": "Module 3: Agile Development & Scrum", "q": "What is the purpose of 'Backlog Refinement' (Grooming) in Scrum?", "options": ["To delete the entire backlog and start over", "An ongoing collaboration between PO and team to review, split, clarify, and estimate upcoming user stories so they are ready for future sprints", "To write employee performance reviews", "To clean computer screens"], "ans": 1, "exp": "Backlog refinement ensures that upcoming items are well-understood, properly sized, and satisfy the Definition of Ready before Sprint Planning.", "level": 5, "level_q_num": 7}, {"id": 128, "category": "Module 3: Agile Development & Scrum", "q": "What is the concept of 'Sustainable Pace' in Agile development?", "options": ["Developers working 80 hours a week every week", "Teams should be able to maintain a healthy, constant pace indefinitely without chronic overtime or burnout, preserving long-term code quality", "Releasing software once every 5 years", "Slowing down coding speed to minimum"], "ans": 1, "exp": "Agile Principle 8: 'Agile processes promote sustainable development. The sponsors, developers, and users should be able to maintain a constant pace indefinitely.' Chronic overtime degrades quality and causes attrition.", "level": 5, "level_q_num": 8}, {"id": 129, "category": "Module 3: Agile Development & Scrum", "q": "Why do agile teams prefer story points over hours for estimation?", "options": ["Because hours are illegal in agile", "Story points measure relative effort and complexity independently of individual developer speed, avoiding false precision", "Story points are easier to multiply by zero", "Because story points can be traded for money"], "ans": 1, "exp": "Story points estimate relative size and complexity (e.g. Story B is twice as complex as Story A) rather than attempting to guess exact wall-clock hours.", "level": 5, "level_q_num": 9}, {"id": 130, "category": "Module 3: Agile Development & Scrum", "q": "What is the primary danger of adopting 'Agile in name only' (often called Agile-Fall or Zombie Scrum)?", "options": ["The team will write code too fast", "The organization adopts agile rituals (daily standups) but retains rigid plan-driven mindsets (heavy documentation gates, fixed scope, command-and-control management), gaining none of agile's benefits", "Computers will refuse to run the code", "The Scrum Master becomes CEO"], "ans": 1, "exp": "Superficially adopting terminology without embracing agile culture (empowerment, responding to change, psychological safety) produces the worst of both worlds.", "level": 5, "level_q_num": 10}, {"id": 131, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What are the four fundamental process activities common to all software engineering methodologies?", "options": ["Specification, Development (Design & Implementation), Validation (Testing), Evolution", "Planning, Marketing, Advertising, Sales", "Typing, Printing, Binding, Shipping", "Inception, Elaboration, Legal, Bankruptcy"], "ans": 0, "exp": "Sommerville Chapter 2 defines four universal process activities: Software Specification, Software Development, Software Validation, and Software Evolution.", "level": 5, "level_q_num": 11}, {"id": 132, "category": "Module 4: Process Activities, Testing & Evolution", "q": "According to Barry Boehm's classic maxim, 'Verification' is defined as:", "options": ["'Are we building the right product?'", "'Are we building the product right?'", "'Are we selling the product at the right price?'", "'Are we delivering the product on the right day?'"], "ans": 1, "exp": "Verification = 'Are we building the product right?' (conformance to specification). Validation = 'Are we building the right product?' (satisfying customer needs).", "level": 5, "level_q_num": 12}, {"id": 133, "category": "Module 4: Process Activities, Testing & Evolution", "q": "According to Barry Boehm's classic maxim, 'Validation' is defined as:", "options": ["'Are we building the product right?'", "'Are we building the right product?'", "'Are we hiring the right programmers?'", "'Are we using the right programming language?'"], "ans": 1, "exp": "Validation = 'Are we building the right product?' (ensuring the system meets real user operational expectations).", "level": 5, "level_q_num": 13}, {"id": 134, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Testing individual functions, subroutines, or classes in isolation by programmers is known as:", "options": ["Acceptance Testing", "System Testing", "Unit (Component) Testing", "Stress Testing"], "ans": 2, "exp": "Unit testing isolates individual software units to verify internal algorithmic correctness before integration.", "level": 5, "level_q_num": 14}, {"id": 135, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is the primary objective of Integration Testing?", "options": ["To test how fast developers type", "To detect interface errors, communication mismatches, and data incompatibilities between integrated software modules", "To check printer ink levels", "To negotiate software prices"], "ans": 1, "exp": "Integration testing uncovers defects in the interactions, protocols, and data transfers between interconnected components.", "level": 5, "level_q_num": 15}, {"id": 136, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is the difference between Alpha Testing and Beta Testing?", "options": ["Alpha is automated; Beta is manual", "Alpha testing is conducted by representative users at the developer's site; Beta testing releases the software to real end-users in their own operational environment", "Alpha is for mobile apps; Beta is for mainframes", "Alpha happens after product release; Beta happens before coding"], "ans": 1, "exp": "Alpha testing occurs in a controlled developer environment; Beta testing exposes the release to real-world, uncontrolled customer usage.", "level": 5, "level_q_num": 16}, {"id": 137, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is Regression Testing?", "options": ["Testing software only when it goes backwards", "Re-running existing test suites to ensure that recent code modifications or bug fixes have not broken previously functioning features", "Testing software on old operating systems only", "Deleting old test cases"], "ans": 1, "exp": "Regression testing guarantees that new code additions or defect fixes do not introduce unintended side effects in previously validated features.", "level": 5, "level_q_num": 17}, {"id": 138, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Which software testing approach treats the software as an opaque box, testing solely against inputs and expected outputs without looking at source code?", "options": ["White-box (Structural) Testing", "Black-box (Functional / Behavioral) Testing", "Glass-box Testing", "Static Code Inspection"], "ans": 1, "exp": "Black-box testing tests functionality against requirements specifications without internal knowledge of code implementation.", "level": 5, "level_q_num": 18}, {"id": 139, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Which testing technique examines internal code logic, loops, branches, and execution paths using source code visibility?", "options": ["Black-box Testing", "White-box (Structural / Glass-box) Testing", "Ad-hoc User Testing", "Beta Testing"], "ans": 1, "exp": "White-box testing uses source code visibility to ensure all logical paths, conditions, and statements execute correctly.", "level": 5, "level_q_num": 19}, {"id": 140, "category": "Module 4: Process Activities, Testing & Evolution", "q": "In Black-Box testing, dividing the input domain into classes of data from which test cases can be derived is called:", "options": ["Equivalence Partitioning", "Continuous Integration", "Refactoring", "Code Obfuscation"], "ans": 0, "exp": "Equivalence partitioning groups input values into valid and invalid partitions where the program is assumed to handle all members of a partition identically.", "level": 5, "level_q_num": 20}, {"id": 141, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Testing inputs at the edges of equivalence classes (e.g. testing values 0, 1, 99, 100, 101) is called:", "options": ["Boundary Value Analysis (BVA)", "Random Hacking", "Stress Overclocking", "Alpha Testing"], "ans": 0, "exp": "Boundary value analysis focuses on edges where off-by-one errors and algorithmic flaws cluster most frequently.", "level": 5, "level_q_num": 21}, {"id": 142, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is Acceptance Testing?", "options": ["Testing conducted by developers to accept their own salaries", "Formal testing conducted by the customer/end-users to determine whether to accept delivery of the software system", "Testing whether the compiler accepts code syntax", "Testing whether the server accepts power"], "ans": 1, "exp": "Acceptance testing determines whether the delivered software meets contractual obligations and is fit for live operational deployment.", "level": 5, "level_q_num": 22}, {"id": 143, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is the difference between 'Change Avoidance / Anticipation' and 'Change Tolerance'?", "options": ["Change avoidance ignores all customer emails; change tolerance accepts all bugs", "Change anticipation includes activities (like prototyping) to predict changes before major rework is committed; change tolerance designs the process/architecture (like incremental delivery) so changes can be accommodated at low cost", "Change avoidance is only used in games; change tolerance is only used in banks", "There is no difference"], "ans": 1, "exp": "Anticipation forecasts changes before development (e.g. prototyping); tolerance structures the process so inevitable changes are inexpensive to absorb (e.g. incremental delivery).", "level": 5, "level_q_num": 23}, {"id": 144, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Software maintenance is typically categorized into which three types?", "options": ["Cheap, Medium, and Expensive", "Fault repairs (corrective), Environmental adaptations (adaptive), and Functionality additions/enhancements (perfective)", "Alpha, Beta, and Gamma", "Frontend, Backend, and Database"], "ans": 1, "exp": "Maintenance involves: Corrective (fixing discovered bugs), Adaptive (porting to new OS/hardware/regulations), and Perfective (adding new features or improving performance).", "level": 5, "level_q_num": 24}, {"id": 145, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Lehman's Laws of Software Evolution state that a system that is used will:", "options": ["Never need any modifications", "Undergo continuous change, and its complexity will increase unless active work is done to maintain it (Law of Continuing Change & Increasing Complexity)", "Automatically shrink in code size", "Become immune to security bugs"], "ans": 1, "exp": "Lehman's classic laws observe that software used in real-world environments must continuously evolve, and its structural complexity naturally rises unless refactoring is performed.", "level": 5, "level_q_num": 25}, {"id": 146, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is 'Software Re-engineering'?", "options": ["Deleting the codebase and firing developers", "Rebuilding parts of a legacy system to improve maintainability without changing its core business functionality", "Rewriting code in HTML only", "Copying code from another company"], "ans": 1, "exp": "Re-engineering modernizes architecture, cleans code, and updates databases of legacy systems to make them easier to maintain in the future.", "level": 5, "level_q_num": 26}, {"id": 147, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is 'Reverse Engineering'?", "options": ["Typing code backwards from right to left", "Analyzing an existing system to recover its high-level design specifications, architecture, and requirements from source code", "Uninstalling software from a computer", "Running a program in debug mode"], "ans": 1, "exp": "Reverse engineering analyzes legacy binaries or source code to reconstruct architectural models and documentation when original specs are lost.", "level": 5, "level_q_num": 27}, {"id": 148, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is a 'Stress Test' in software validation?", "options": ["Testing how stressed developers become before deadlines", "Testing a system beyond its specified operational limits to observe how gracefully it fails or handles extreme overload", "Testing software without any power", "Testing software using broken keyboards"], "ans": 1, "exp": "Stress testing pushes system loads (e.g. 10x peak traffic) past capacity limits to verify that the system degrades gracefully rather than suffering catastrophic collapse or data corruption.", "level": 5, "level_q_num": 28}, {"id": 149, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is 'Smoke Testing' (Build Verification Testing)?", "options": ["Setting the server room on fire", "A non-exhaustive set of basic tests executed after each build to verify that crucial core functions work before deeper testing begins", "Testing only when smoking is permitted", "A test that runs for 48 continuous hours"], "ans": 1, "exp": "Smoke tests verify that the build is stable enough for QA testing (e.g. does it launch, can it connect to DB, can users log in?).", "level": 5, "level_q_num": 29}, {"id": 150, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Why is fixing a defect in the post-release maintenance phase drastically more expensive than fixing it in the requirements phase?", "options": ["Because developers charge higher hourly rates on weekends", "Because a requirements defect propagates through architectural design, implementation, documentation, and test cases, requiring massive downstream rework across all artifacts", "Because compilers charge a fee for late bug fixes", "Because clients refuse to report bugs"], "ans": 1, "exp": "Boehm's cost-of-change curve shows that a defect identified post-release can cost 50 to 100 times more to remediate than if caught during requirements elicitation.", "level": 5, "level_q_num": 30}, {"id": 151, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is 'Static Analysis' in software engineering?", "options": ["Running a program with millions of test inputs", "Analyzing software work products (source code, models) without executing the code, using automated linters and code checkers", "Measuring the weight of printed source code", "Testing software while standing still"], "ans": 1, "exp": "Static analysis scans source code without running it to detect memory leaks, null pointer dereferences, security vulnerabilities, and style violations.", "level": 6, "level_q_num": 1}, {"id": 152, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is 'Code Coverage' in unit testing?", "options": ["The thickness of the printed source code manual", "A quantitative metric measuring the percentage of source code statements, branches, or paths executed during automated testing", "The number of comments written in code", "The physical area of the monitor covered by code"], "ans": 1, "exp": "Code coverage measures test thoroughness (e.g. 85% statement coverage means 85% of code lines were executed by the test suite).", "level": 6, "level_q_num": 2}, {"id": 153, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is the primary objective of Usability Testing?", "options": ["To measure the clock speed of the CPU", "To evaluate how easy, intuitive, and error-free real users find interacting with the user interface", "To verify database query execution plans", "To check compiler optimization flags"], "ans": 1, "exp": "Usability testing measures learnability, user error rates, task completion time, and subjective user satisfaction with the UI.", "level": 6, "level_q_num": 3}, {"id": 154, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What does 'Software Reliability' measure?", "options": ["The probability of failure-free software operation for a specified period of time in a specified environment", "The physical weight of the computer running the software", "The number of developers who attended university", "The price of the software license"], "ans": 0, "exp": "Software reliability is mathematically defined as the probability that a system will execute its functions without failure under specified conditions over a given time interval.", "level": 6, "level_q_num": 4}, {"id": 155, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Mean Time Between Failures (MTBF) is a metric commonly used to quantify:", "options": ["Software execution speed", "Software reliability and availability", "Source code file size", "Compiler optimization levels"], "ans": 1, "exp": "MTBF quantifies the average operating time elapsed between system failures, indicating reliability.", "level": 6, "level_q_num": 5}, {"id": 156, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is 'Defect Density'?", "options": ["The weight of bugs found in a computer", "The number of confirmed defects identified in a software component divided by the size of the component (e.g. defects per KLOC)", "The number of developers working on a module", "The speed of compiling code"], "ans": 1, "exp": "Defect density (e.g. 2 defects per 1,000 lines of code) provides a normalized metric to compare software quality across modules.", "level": 6, "level_q_num": 6}, {"id": 157, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Why is 100% path testing virtually impossible for non-trivial software systems?", "options": ["Because computers lack sufficient memory to store test names", "Because the combinatorial explosion of nested loops and conditional branches creates an astronomical number of possible execution paths", "Because programming languages forbid writing more than 100 tests", "Because compilers only execute the first path"], "ans": 1, "exp": "Even a moderately complex program has billions of possible unique execution paths due to loops and branches, making exhaustive path testing mathematically intractable.", "level": 6, "level_q_num": 7}, {"id": 158, "category": "Module 4: Process Activities, Testing & Evolution", "q": "In software design, 'High Cohesion' means:", "options": ["A module performs many completely unrelated tasks", "All elements inside a module are closely related and work together to execute a single, well-defined purpose", "A module depends on 50 other external modules", "The source code has zero comments"], "ans": 1, "exp": "High cohesion is a core design principle: a module should focus on a single responsibility, making it easier to understand, test, and maintain.", "level": 6, "level_q_num": 8}, {"id": 159, "category": "Module 4: Process Activities, Testing & Evolution", "q": "In software design, 'Low Coupling' means:", "options": ["Modules have minimal dependencies on other modules, interacting through simple, well-defined interfaces", "Modules share global variables directly with every other class", "Modules are welded together permanently", "The program cannot compile"], "ans": 0, "exp": "Low coupling minimizes dependencies between components, allowing one module to be modified without triggering ripple effects in other modules.", "level": 6, "level_q_num": 9}, {"id": 160, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is the purpose of Architectural Design in software development?", "options": ["To choose wallpaper colors for the office", "To identify the overall structural framework of the system, major subsystems, their interfaces, and how they communicate", "To write SQL queries for a single table", "To format paragraph indents in Word"], "ans": 1, "exp": "Architectural design defines high-level system structure, decomposing the system into subsystems and establishing inter-component communication patterns.", "level": 6, "level_q_num": 10}, {"id": 161, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is a 'Stub' in top-down integration testing?", "options": ["A broken piece of computer hardware", "A dummy module that simulates the behavior of a lower-level module not yet implemented, allowing higher-level modules to be tested", "A developer who refuses to write tests", "An error message printed by a compiler"], "ans": 1, "exp": "In top-down testing, stubs simulate lower-level child routines that haven't been coded yet, returning dummy values to test parent modules.", "level": 6, "level_q_num": 11}, {"id": 162, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is a 'Driver' in bottom-up integration testing?", "options": ["A person who drives developers to work", "A temporary piece of code that calls a lower-level module with test inputs and displays the results", "A hardware motor in a hard drive", "An operating system device driver only"], "ans": 1, "exp": "In bottom-up testing, drivers simulate higher-level calling routines to invoke and test low-level worker modules before the main program is written.", "level": 6, "level_q_num": 12}, {"id": 163, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What does 'Fault-Tolerance' mean in dependable systems?", "options": ["The ability of software to tolerate developers who make mistakes", "The ability of a system to maintain operational service (even in a degraded mode) despite the occurrence of software or hardware faults", "A system that allows users to delete files without passwords", "A system that never logs errors"], "ans": 1, "exp": "Fault-tolerant systems detect errors and recover (via redundancy, checkpointing, or fail-safe defaults) to prevent complete system collapse.", "level": 6, "level_q_num": 13}, {"id": 164, "category": "Module 4: Process Activities, Testing & Evolution", "q": "Which metric measures the percentage of time a system is fully operational and accessible to users?", "options": ["Mean Time to Repair (MTTR)", "System Availability (e.g. 99.9% uptime)", "Cyclomatic Complexity", "Lines of Code (LOC)"], "ans": 1, "exp": "Availability measures operational uptime: Availability = MTBF / (MTBF + MTTR), often expressed as 'nines' (e.g. 99.999% availability).", "level": 6, "level_q_num": 14}, {"id": 165, "category": "Module 4: Process Activities, Testing & Evolution", "q": "What is Cyclomatic Complexity in software metrics?", "options": ["The number of cycles a CPU executes per second", "A quantitative measure of the number of linearly independent execution paths through a program's source code", "The circular shape of server fans", "The number of days in a development sprint"], "ans": 1, "exp": "Thomas McCabe's cyclomatic complexity calculates the number of independent paths through a program's control flow graph, indicating code complexity and the minimum test cases needed.", "level": 6, "level_q_num": 15}, {"id": 166, "category": "Module 5: Requirements Engineering", "q": "What is the main distinction between User Requirements and System Requirements?", "options": ["User requirements are written in Python; system requirements are written in Java", "User requirements are high-level abstract statements in natural language and diagrams for customers; system requirements are detailed structured specifications of system functions and constraints for developers", "User requirements only deal with hardware; system requirements only deal with software", "There is no distinction; they are identical"], "ans": 1, "exp": "User requirements communicate system capabilities to non-technical clients and managers; System requirements define precise technical contracts (services, inputs, outputs, errors) for developers.", "level": 6, "level_q_num": 16}, {"id": 167, "category": "Module 5: Requirements Engineering", "q": "What are Functional Requirements?", "options": ["Statements of constraints on development budget and schedule", "Statements of services the system should provide, how it should react to specific inputs, and how it behaves in particular situations", "Legal requirements imposed by government tax agencies", "The programming languages used by developers"], "ans": 1, "exp": "Functional requirements describe what the system does (features, data processing, user actions) in response to specific stimuli.", "level": 6, "level_q_num": 17}, {"id": 168, "category": "Module 5: Requirements Engineering", "q": "What are Non-Functional Requirements (NFRs)?", "options": ["Requirements that describe broken system functions", "Constraints on the services or functions offered by the system, including timing constraints, performance, security, and standards compliance", "Features that users do not want", "Informal suggestions that developers can ignore"], "ans": 1, "exp": "NFRs define emergent quality properties (security, speed, reliability, scalability) and organizational/legal constraints rather than individual functional operations.", "level": 6, "level_q_num": 18}, {"id": 169, "category": "Module 5: Requirements Engineering", "q": "According to Sommerville's classification, what are the three main categories of Non-Functional Requirements?", "options": ["Easy, Medium, and Hard requirements", "Product requirements, Organisational requirements, and External requirements", "Frontend, Backend, and Database requirements", "Input, Output, and Processing requirements"], "ans": 1, "exp": "Sommerville classifies NFRs into: 1) Product (speed, memory, usability), 2) Organisational (standards, programming languages), and 3) External (regulatory, legislative, ethical).", "level": 6, "level_q_num": 19}, {"id": 170, "category": "Module 5: Requirements Engineering", "q": "A requirement specifying that 'The system must respond to 95% of queries within 1.5 seconds' is classified as:", "options": ["An Organisational requirement", "A Product requirement (Performance)", "An External requirement", "A Functional requirement"], "ans": 1, "exp": "Product requirements constrain the runtime behavior of the delivered system, such as response speed, throughput, and memory consumption.", "level": 6, "level_q_num": 20}, {"id": 171, "category": "Module 5: Requirements Engineering", "q": "A requirement specifying that 'The development process must conform to ISO 9001 quality management procedures' is classified as:", "options": ["A Product requirement", "An Organisational requirement", "An External legislative requirement", "A Functional user requirement"], "ans": 1, "exp": "Organisational requirements stem from organizational policies, process standards, implementation constraints, and documentation rules.", "level": 6, "level_q_num": 21}, {"id": 172, "category": "Module 5: Requirements Engineering", "q": "A requirement specifying that 'The system shall protect patient medical records in strict compliance with HIPAA and GDPR regulations' is classified as:", "options": ["A Product performance requirement", "An External requirement (Legislative / Regulatory)", "An Organisational coding requirement", "A System design guideline"], "ans": 1, "exp": "External requirements originate from factors outside the organization, such as statutory legislation, regulatory mandates, and industry compliance rules.", "level": 6, "level_q_num": 22}, {"id": 173, "category": "Module 5: Requirements Engineering", "q": "Why is the requirement 'The software shall have an attractive, easy-to-use user interface' considered poor engineering?", "options": ["Because attractiveness is banned in software development", "Because it is vague, subjective, and cannot be quantitatively measured or verified through automated tests", "Because user interfaces do not have requirements", "Because it is written in English"], "ans": 1, "exp": "Requirements must be verifiable. Subjective terms like 'easy-to-use' cannot be objectively tested unless converted into quantifiable metrics (e.g. 'A novice completes task X in under 3 minutes with zero errors').", "level": 6, "level_q_num": 23}, {"id": 174, "category": "Module 5: Requirements Engineering", "q": "Which metric is appropriate for quantifying the 'Reliability' of a software system?", "options": ["Processed transactions per second", "Mean Time to Failure (MTTF) and Rate of Failure Occurrence (ROCOF)", "Number of help screens accessed", "Megabytes of RAM consumed"], "ans": 1, "exp": "Reliability is quantified using metrics like MTTF (Mean Time to Failure), MTBF (Mean Time Between Failures), and probability of failure on demand (POFOD).", "level": 6, "level_q_num": 24}, {"id": 175, "category": "Module 5: Requirements Engineering", "q": "Which metric is appropriate for quantifying the 'Portability' of a software application?", "options": ["Time to restart after a system crash", "Percentage of target-dependent statements and number of supported target operating systems", "Number of lines of code written in Python", "Screen refresh rate in milliseconds"], "ans": 1, "exp": "Portability is quantified by the percentage of platform-dependent code and the number of distinct target platforms supported.", "level": 6, "level_q_num": 25}, {"id": 176, "category": "Module 5: Requirements Engineering", "q": "What are the four core sub-processes of Requirements Engineering?", "options": ["Elicitation & Analysis, Specification, Validation, and Management", "Coding, Compiling, Debugging, and Running", "Hiring, Budgeting, Scheduling, and Firing", "Inception, Negotiation, Lawsuit, and Settlement"], "ans": 0, "exp": "The Requirements Engineering process comprises: Requirements Elicitation & Analysis (discovering needs), Specification (documenting), Validation (verifying correctness), and Management (managing changes).", "level": 6, "level_q_num": 26}, {"id": 177, "category": "Module 5: Requirements Engineering", "q": "What is a 'Feasibility Study' in early requirements engineering?", "options": ["A test of developers' typing skills", "A short, focused study evaluating whether the proposed system contributes to business objectives, is technically feasible within budget and schedule", "A complete writing of all source code", "A marketing survey sent to random citizens"], "ans": 1, "exp": "The feasibility study determines whether a project is worth pursuing technically, financially, and organizationally before significant resources are committed.", "level": 6, "level_q_num": 27}, {"id": 178, "category": "Module 5: Requirements Engineering", "q": "What requirements elicitation technique involves an analyst observing and immersing themselves in the actual day-to-day workplace of end-users?", "options": ["Closed questionnaires", "Ethnography (Observational study)", "Formal automated verification", "Reverse compiler engineering"], "ans": 1, "exp": "Ethnography is an observational technique discovering subtle, tacit work practices and social procedures that workers unconsciously omit during formal interviews.", "level": 6, "level_q_num": 28}, {"id": 179, "category": "Module 5: Requirements Engineering", "q": "What is the primary limitation of closed-ended questionnaires in requirements elicitation?", "options": ["They take too long to send by email", "They presuppose the questions to ask and cannot explore unexpected problems, tacit knowledge, or nuanced user workflows", "They are illegal under copyright law", "They can only be answered by software developers"], "ans": 1, "exp": "Closed questionnaires only validate preconceived hypotheses; they cannot uncover unforeseen needs or complex, unexpected organizational realities.", "level": 6, "level_q_num": 29}, {"id": 180, "category": "Module 5: Requirements Engineering", "q": "In requirements validation, checking that a requirements document contains no conflicting statements is called a:", "options": ["Completeness check", "Consistency check", "Verifiability check", "Realism check"], "ans": 1, "exp": "Consistency checks ensure that requirements do not contradict each other (e.g. one requirement specifying a 1-second timeout while another specifies waiting 10 seconds).", "level": 6, "level_q_num": 30}, {"id": 181, "category": "Module 5: Requirements Engineering", "q": "In requirements validation, checking that all required system functions and constraints are described without omissions is called a:", "options": ["Consistency check", "Completeness check", "Traceability check", "Ambiguity check"], "ans": 1, "exp": "Completeness checks verify that the requirements document covers all necessary system capabilities and operational constraints without missing scenarios.", "level": 7, "level_q_num": 1}, {"id": 182, "category": "Module 5: Requirements Engineering", "q": "What is the official document that serves as the agreed technical contract between software developers and customers?", "options": ["Software Project Plan", "Software Requirements Specification (SRS)", "User Manual", "Test Summary Report"], "ans": 1, "exp": "The SRS is the authoritative document defining what developers must implement and what customers are contractually entitled to receive.", "level": 7, "level_q_num": 2}, {"id": 183, "category": "Module 5: Requirements Engineering", "q": "According to IEEE 830 standards, which of the following is a key characteristic of a good SRS document?", "options": ["Ambiguous, incomplete, and untraceable", "Correct, unambiguous, complete, consistent, ranked for importance, verifiable, modifiable, and traceable", "Written entirely in binary code", "Contains full executable C++ source code"], "ans": 1, "exp": "IEEE standards state that an effective SRS must be unambiguous, complete, verifiable, consistent, and traceable.", "level": 7, "level_q_num": 3}, {"id": 184, "category": "Module 5: Requirements Engineering", "q": "What is a 'Use Case' in requirements modeling?", "options": ["A legal court case involving software patents", "A description of a sequence of interactions between an external actor (user or external system) and the system to achieve a specific goal", "A test case written in Java", "A suitcase used to carry laptops"], "ans": 1, "exp": "A Use Case describes actor-system interactions (e.g. 'Withdraw Cash') from the actor's perspective, capturing functional boundary behavior.", "level": 7, "level_q_num": 4}, {"id": 185, "category": "Module 5: Requirements Engineering", "q": "In UML Use Case diagrams, what does an 'Actor' represent?", "options": ["A Hollywood movie star", "A role played by an external entity (human user, hardware device, or other external system) that interacts directly with the software", "An internal database table", "A line of program code"], "ans": 1, "exp": "Actors represent external entities interacting with the system, modeled as stick figures or external system boxes.", "level": 7, "level_q_num": 5}, {"id": 186, "category": "Module 5: Requirements Engineering", "q": "What is the primary purpose of a Requirements Traceability Matrix (RTM)?", "options": ["To track developers' internet browsing history", "To trace each individual requirement from its origin through architectural design, code modules, and verification test cases", "To calculate the price of software per line of code", "To design graphical user interfaces"], "ans": 1, "exp": "Traceability ensures every requirement is implemented in code and validated by tests, and reveals which components are impacted when a requirement changes.", "level": 7, "level_q_num": 6}, {"id": 187, "category": "Module 5: Requirements Engineering", "q": "Why is 'Natural Language' both the most widely used and the most dangerous notation for writing software requirements?", "options": ["Because natural language is too difficult for humans to read", "Because it is universally understood by non-technical stakeholders, but inherently suffers from ambiguity, vagueness, and multiple contradictory interpretations", "Because computers cannot process English text", "Because natural language is forbidden in contracts"], "ans": 1, "exp": "Natural language is expressive and understandable by all stakeholders, but words like 'fast', 'appropriate', or 'user-friendly' introduce dangerous ambiguity.", "level": 7, "level_q_num": 7}, {"id": 188, "category": "Module 5: Requirements Engineering", "q": "Structured natural language specifications (form-based or template-based) improve on raw natural language by:", "options": ["Replacing English with mathematical equations", "Standardizing the format into mandatory fields: function description, inputs, source, outputs, destination, preconditions, and side effects", "Translating all requirements into Japanese", "Deleting all non-functional requirements"], "ans": 1, "exp": "Structured forms enforce discipline, ensuring analysts explicitly document inputs, outputs, preconditions, and postconditions for every service.", "level": 7, "level_q_num": 8}, {"id": 189, "category": "Module 5: Requirements Engineering", "q": "When resolving conflicting requirements between two stakeholders (e.g. Security Officer wants 3-factor authentication; Marketing Manager wants 1-click checkout), the analyst must:", "options": ["Always ignore the security officer", "Facilitate requirements negotiation to analyze trade-offs, identify business priorities, and design compromised solutions (like risk-based adaptive authentication)", "Flip a coin to decide", "Cancel the entire project immediately"], "ans": 1, "exp": "Requirements negotiation evaluates architectural trade-offs to balance conflicting stakeholder priorities (e.g. adaptive security with seamless checkout).", "level": 7, "level_q_num": 9}, {"id": 190, "category": "Module 5: Requirements Engineering", "q": "In requirements validation, checking that requirements can realistically be implemented given current technology, budget, and schedule constraints is called a:", "options": ["Verifiability check", "Realism check", "Consistency check", "Completeness check"], "ans": 1, "exp": "Realism checks verify whether the requested capability can practically be engineered within budget, schedule, and technological limits.", "level": 7, "level_q_num": 10}, {"id": 191, "category": "Module 5: Requirements Engineering", "q": "What is 'Scope Creep' in software projects?", "options": ["A virus that creeps across networks", "The uncontrolled, continuous expansion of project requirements without corresponding adjustments to budget, time, and resources", "A developer who works late at night", "A tool for inspecting source code"], "ans": 1, "exp": "Scope creep occurs when new features are continually added without formal change control, causing project schedules to slip and budgets to blow out.", "level": 7, "level_q_num": 11}, {"id": 192, "category": "Module 5: Requirements Engineering", "q": "What is the primary role of a Change Control Board (CCB) in requirements management?", "options": ["To fire employees who request changes", "A formal group of stakeholders that reviews, evaluates the business impact of, and formally approves or rejects proposed requirement changes", "To write marketing brochures", "To install software updates on laptops"], "ans": 1, "exp": "The CCB assesses technical, financial, and schedule impacts of proposed changes, deciding whether to authorize, postpone, or reject them.", "level": 7, "level_q_num": 12}, {"id": 193, "category": "Module 5: Requirements Engineering", "q": "What is a 'Tabular Specification' particularly useful for in an SRS document?", "options": ["Printing tables in cafeterias", "Representing complex logic involving multiple combinations of conditions, inputs, and resulting alternative actions (decision tables)", "Listing employee phone numbers", "Showing project budgets only"], "ans": 1, "exp": "Tabular decision tables clearly define multi-condition logic (e.g. if account active AND balance > withdrawal THEN approve, ELSE reject) without confusing nested English sentences.", "level": 7, "level_q_num": 13}, {"id": 194, "category": "Module 5: Requirements Engineering", "q": "In the Bank Management System example from Lecture 7, 'Allowing customers to transfer funds between accounts' is a:", "options": ["Non-functional product constraint", "Functional requirement", "Organisational policy requirement", "Hardware architecture guideline"], "ans": 1, "exp": "Transferring funds is a core service provided by the system in response to user input, defining a functional requirement.", "level": 7, "level_q_num": 14}, {"id": 195, "category": "Module 5: Requirements Engineering", "q": "In requirements validation, what is a 'Requirements Review'?", "options": ["A formal meeting where clients, system developers, and domain experts systematically inspect the requirements document line-by-line to find errors and omissions", "A developer reviewing code alone in a room", "An annual salary review", "A customer review left on an app store"], "ans": 0, "exp": "Formal requirements reviews bring together clients and contractors to walk through the SRS, verifying validity, consistency, completeness, and verifiability before signing off.", "level": 7, "level_q_num": 15}, {"id": 196, "category": "Module 5: Requirements Engineering", "q": "Why is requirement 'Verifiability' critical in government and commercial contracts?", "options": ["Because verifiable requirements allow compilers to run faster", "Because in disputes, an objective test or measurement must demonstrate whether the contractor successfully delivered what was contracted", "Because verifiable requirements eliminate the need for contracts", "Because verifiability reduces server electricity"], "ans": 1, "exp": "If a requirement cannot be objectively measured or tested, neither customer nor contractor can legally prove whether the system satisfies the specification.", "level": 7, "level_q_num": 16}, {"id": 197, "category": "Module 5: Requirements Engineering", "q": "What does 'Requirements Elicitation' mean?", "options": ["Deleting unwanted requirements", "The collaborative discovery, extraction, and learning of stakeholders' true needs, operational constraints, and domain rules", "Selling requirements to another company", "Translating requirements into C++"], "ans": 1, "exp": "Elicitation is the interactive process of discovering stakeholder needs through interviews, observation, prototypes, and workshops.", "level": 7, "level_q_num": 17}, {"id": 198, "category": "Module 5: Requirements Engineering", "q": "What is a 'Scenario' in requirements engineering?", "options": ["A movie script", "A real-life end-to-end example of a system interaction, describing starting state, normal flow of events, what can go wrong, and resulting system state", "A computer bug", "A hardware component"], "ans": 1, "exp": "Scenarios provide concrete step-by-step walkthroughs of user interactions, clarifying normal paths and exception handling.", "level": 7, "level_q_num": 18}, {"id": 199, "category": "Module 5: Requirements Engineering", "q": "In requirements management, what is 'Volatile Requirements'?", "options": ["Requirements that explode inside servers", "Requirements that are unstable and change frequently throughout the project due to evolving business or political environments", "Requirements that cannot be written on paper", "Requirements that have zero cost"], "ans": 1, "exp": "Volatile requirements (as opposed to stable core requirements) shift during development, requiring agile adaptation or formal change management.", "level": 7, "level_q_num": 19}, {"id": 200, "category": "Module 5: Requirements Engineering", "q": "What is the relationship between Functional and Non-Functional requirements in software architecture?", "options": ["They are completely unrelated and never affect each other", "Non-functional requirements (like security, performance, and reliability) often dictate the overall system architecture, while functional requirements define individual component services", "Functional requirements always replace non-functional requirements", "Non-functional requirements are only considered after software is retired"], "ans": 1, "exp": "Non-functional quality attributes (e.g. achieving 99.999% availability or sub-second latency) drive macro-architectural decisions (redundancy, distributed microservices, caching), within which individual functional features reside.", "level": 7, "level_q_num": 20}, {"category": "Module 3: Agile Development & Scrum", "q": "In Agile development, what is the 'Definition of Ready' (DoR)?", "options": ["The criteria that user stories must meet before being accepted into a Sprint during Sprint Planning", "The date when the developer is ready to retire", "The moment the software is deployed to the public app store", "A declaration that all computers are turned on"], "ans": 0, "exp": "Definition of Ready (DoR) defines criteria (e.g. story is clear, estimated, has testable acceptance criteria) that a backlog item must satisfy before the team commits to building it in a Sprint.", "id": 201, "level": 7, "level_q_num": 21}, {"category": "Module 3: Agile Development & Scrum", "q": "How does Kanban differ from Scrum regarding iteration timeboxing?", "options": ["Kanban uses 6-month sprints; Scrum uses 1-day sprints", "Kanban is continuous flow with Work-in-Progress (WIP) limits rather than fixed-length timeboxed sprints", "Kanban bans all visual boards", "Scrum does not have roles while Kanban has 10 roles"], "ans": 1, "exp": "Scrum organizes work into fixed timeboxed iterations (Sprints), whereas Kanban uses a continuous flow model governed by Work-in-Progress (WIP) limits per column.", "id": 202, "level": 7, "level_q_num": 22}, {"category": "Module 4: Process Activities, Testing & Evolution", "q": "What is the primary difference between a Software Inspection and a Software Walkthrough?", "options": ["Inspections are formal, metrics-driven reviews led by a trained moderator using checklists; walkthroughs are informal, author-led presentations", "Inspections are executed by automated compiler scripts; walkthroughs are physical exercises", "Walkthroughs are only conducted after product release", "There is no difference; both are identical"], "ans": 0, "exp": "Fagan Inspections are formal, structured technical reviews guided by checklists and a trained moderator; walkthroughs are informal peer reviews led by the author of the work product.", "id": 203, "level": 7, "level_q_num": 23}, {"category": "Module 4: Process Activities, Testing & Evolution", "q": "In software metrics, what is the difference between Direct and Indirect metrics?", "options": ["Direct metrics can be measured directly on the product or process (e.g. LOC, execution speed, defect count); indirect metrics are calculated (e.g. quality, maintainability, programmer productivity)", "Direct metrics are always in dollars; indirect metrics are in euros", "Direct metrics are only for hardware", "Indirect metrics can never be expressed as numbers"], "ans": 0, "exp": "Direct metrics quantify immediately observable physical attributes (lines of code, memory size, testing hours); indirect metrics derive abstract qualities (maintainability, reliability, defect density) via computation.", "id": 204, "level": 7, "level_q_num": 24}, {"category": "Module 4: Process Activities, Testing & Evolution", "q": "What is the primary purpose of Software Quality Assurance (SQA) as an umbrella activity?", "options": ["To write all frontend code", "To establish a planned and systematic pattern of actions to ensure that software conforms to established technical requirements and standards", "To replace human developers with automated scripts", "To negotiate client invoices"], "ans": 1, "exp": "SQA audits software engineering processes, monitors adherence to standards, and ensures quality control activities are rigorously applied throughout development.", "id": 205, "level": 7, "level_q_num": 25}, {"category": "Module 5: Requirements Engineering", "q": "In agile requirements modeling, what standard three-part template is used to write User Stories?", "options": ["'If [condition] then [action] else [exception]'", "'As a [role], I want [capability/goal], so that [business benefit/value]'", "'System shall [verb] [noun] within [time]'", "'Contractor must deliver [module] by [date]'"], "ans": 1, "exp": "The canonical user story format identifies the beneficiary ('As a...'), the desired action ('I want...'), and the underlying purpose or value ('So that...').", "id": 206, "level": 7, "level_q_num": 26}, {"category": "Module 5: Requirements Engineering", "q": "What is the difference between 'System Viewpoints' and 'Stakeholder Viewpoints' in viewpoint-oriented requirements elicitation?", "options": ["System viewpoints represent other interconnected computer systems/databases; stakeholder viewpoints represent human roles and organizational actors", "System viewpoints are only written in binary", "Stakeholder viewpoints are banned under IEEE standards", "There is no difference"], "ans": 0, "exp": "Viewpoint-oriented elicitation structures requirements from multiple perspectives: stakeholder viewpoints (doctors, clerks, managers) and system/domain viewpoints (external databases, hardware sensors).", "id": 207, "level": 7, "level_q_num": 27}, {"category": "Module 5: Requirements Engineering", "q": "What is 'Change Impact Analysis' in requirements management?", "options": ["Measuring the physical impact of dropping a server", "Evaluating which system components, design models, code files, and test cases will be affected before approving a proposed requirement change", "Calculating the financial bankruptcy of the client", "Deleting all requirements that were changed"], "ans": 1, "exp": "Traceability links allow analysts to perform change impact analysis, predicting exactly which architecture components and test suites must be updated if a requirement is modified.", "id": 208, "level": 7, "level_q_num": 28}, {"category": "Module 5: Requirements Engineering", "q": "Which of the following represents an 'Organisational' non-functional requirement?", "options": ["'The system must process 200 orders per second'", "'All source code must be written in TypeScript following Google Coding Style guidelines and delivered via Git'", "'The software must comply with European Medical Device Regulation (MDR)'", "'The user can click a button to export CSV files'"], "ans": 1, "exp": "Coding standards, repository management, programming languages, and process guidelines originate from the internal organization, classifying them as Organisational NFRs.", "id": 209, "level": 7, "level_q_num": 29}, {"category": "Module 5: Requirements Engineering", "q": "What is the primary danger of leaving software requirements Ambiguous in an SRS contract?", "options": ["The compiler will fail to interpret the document", "Different stakeholders interpret the requirement in contradictory ways: developers build what they assume, while customers expect something completely different, leading to costly contract disputes", "The font size will automatically increase", "Hardware memory will become fragmented"], "ans": 1, "exp": "Ambiguity causes misalignment: developers implement their interpretation, which diverges from client expectations, resulting in expensive rework during user acceptance testing.", "id": 210, "level": 7, "level_q_num": 30}];
+const levelsConfig = [{"level": 1, "title": "Level 1: Software Foundations & Attributes", "range": "Q1 - Q30", "desc": "Software Characteristics, Bathtub Curve, 4 Attributes, Costs & Foundations"}, {"level": 2, "title": "Level 2: Ethics, Case Studies & Early Process Models", "range": "Q31 - Q60", "desc": "Insulin Pump, Mentcare, Weather Station, iLearn, Waterfall & Incremental"}, {"level": 3, "title": "Level 3: Advanced Models, Spiral & CMMI", "range": "Q61 - Q90", "desc": "Boehm's Spiral Model, Prototyping, COTS/CBSE, Unified Process & CMMI 1-5"}, {"level": 4, "title": "Level 4: Agile Manifesto & Extreme Programming", "range": "Q91 - Q120", "desc": "4 Values, 12 Principles, Pair Programming, TDD, Refactoring & CI"}, {"level": 5, "title": "Level 5: Scrum Framework & Project Management", "range": "Q121 - Q150", "desc": "PO, Scrum Master, Team, Ceremonies, Backlogs, Burndown & DoD"}, {"level": 6, "title": "Level 6: Process Activities & Software Testing (V&V)", "range": "Q151 - Q180", "desc": "Specification, Verification vs Validation, Unit, Integration, System, Alpha/Beta"}, {"level": 7, "title": "Level 7: Requirements Engineering & SRS", "range": "Q181 - Q210", "desc": "Functional vs NFRs (Product, Org, External), Elicitation, Ethnography, SRS & Traceability"}];
+
+// State management
+let currentLevel = 1;
+let levelStates = {
+  1: { unlocked: true, submitted: false, score: 0, answers: {} },
+  2: { unlocked: false, submitted: false, score: 0, answers: {} },
+  3: { unlocked: false, submitted: false, score: 0, answers: {} },
+  4: { unlocked: false, submitted: false, score: 0, answers: {} },
+  5: { unlocked: false, submitted: false, score: 0, answers: {} },
+  6: { unlocked: false, submitted: false, score: 0, answers: {} },
+  7: { unlocked: false, submitted: false, score: 0, answers: {} }
+};
+
+// Load from LocalStorage if available
+function loadSavedState() {
+  const saved = localStorage.getItem('se_level_quiz_state_v1');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.levelStates) levelStates = parsed.levelStates;
+      if (parsed.currentLevel) currentLevel = parsed.currentLevel;
+    } catch(e) { console.error('Error loading state', e); }
+  }
+}
+
+function saveState() {
+  localStorage.setItem('se_level_quiz_state_v1', JSON.stringify({
+    levelStates: levelStates,
+    currentLevel: currentLevel
+  }));
+}
+
+// Render Level Map Bar
+function renderLevelTrack() {
+  const track = document.getElementById('levelTrack');
+  track.innerHTML = '';
+
+  levelsConfig.forEach(lvl => {
+    const st = levelStates[lvl.level];
+    const card = document.createElement('div');
+    card.className = `level-card ${lvl.level === currentLevel ? 'active' : ''} ${!st.unlocked ? 'locked' : ''} ${st.submitted ? 'completed' : ''}`;
+    
+    let statusText = '🔒 Locked';
+    let statusClass = 'status-locked';
+    let scoreDisplay = '30 Questions';
+
+    if (st.submitted) {
+      const isPassed = Math.round((st.score / 30) * 100) >= 75;
+      if (isPassed) {
+        statusText = `🏆 Passed (${st.score}/30)`;
+        statusClass = 'status-done';
+        scoreDisplay = `Score: ${Math.round((st.score/30)*100)}% (Passed)`;
+      } else {
+        statusText = `❌ Retry (${st.score}/30)`;
+        statusClass = 'status-locked';
+        scoreDisplay = `Score: ${Math.round((st.score/30)*100)}% (< 75%)`;
+      }
+    } else if (st.unlocked) {
+      const ansCount = Object.keys(st.answers).length;
+      statusText = lvl.level === currentLevel ? '🟢 In Progress' : '🔓 Unlocked';
+      statusClass = 'status-active';
+      scoreDisplay = `${ansCount}/30 Answered`;
+    }
+
+    card.innerHTML = `
+      <div class="lvl-badge ${statusClass}">
+        <span>Level ${lvl.level}</span>
+        <span>${statusText}</span>
+      </div>
+      <div class="lvl-name">${lvl.title.split(':')[1] || lvl.title}</div>
+      <div class="lvl-score">${scoreDisplay} • ${lvl.range}</div>
+    `;
+
+    if (st.unlocked) {
+      card.onclick = () => switchLevel(lvl.level);
+    }
+    track.appendChild(card);
+  });
+}
+
+// Switch between levels
+function switchLevel(lvlNum) {
+  if (!levelStates[lvlNum].unlocked) return;
+  currentLevel = lvlNum;
+  saveState();
+  renderLevelTrack();
+  loadCurrentLevel();
+  window.scrollTo({ top: 120, behavior: 'smooth' });
+}
+
+// Load questions for the current level
+function loadCurrentLevel() {
+  const cfg = levelsConfig.find(l => l.level === currentLevel);
+  const st = levelStates[currentLevel];
+
+  // Update banners
+  document.getElementById('currentLevelTitle').innerText = cfg.title;
+  document.getElementById('currentLevelDesc').innerText = `${cfg.desc} (${cfg.range})`;
+  document.getElementById('paletteHeading').innerText = `Level ${currentLevel} Navigator (${cfg.range})`;
+
+  const container = document.getElementById('levelQuestionsContainer');
+  const palette = document.getElementById('levelPaletteGrid');
+  container.innerHTML = '';
+  palette.innerHTML = '';
+
+  // Get 30 questions for this level
+  const lvlQuestions = allQuestions.filter(q => q.level === currentLevel);
+
+  lvlQuestions.forEach((q, idx) => {
+    const qNumInLevel = idx + 1;
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `qcard-${q.id}`;
+
+    const optLetters = ['A', 'B', 'C', 'D'];
+    let optionsHtml = '';
+    q.options.forEach((opt, oIdx) => {
+      const isSelected = st.answers[q.id] === oIdx;
+      optionsHtml += `
+        <label class="opt-label ${isSelected ? 'selected' : ''}" id="optlabel-${q.id}-${oIdx}">
+          <input type="radio" name="q-${q.id}" value="${oIdx}" ${isSelected ? 'checked' : ''} ${st.submitted ? 'disabled' : ''} onchange="selectOption(${q.id}, ${oIdx})">
+          <span><strong>${optLetters[oIdx]})</strong> ${opt}</span>
+        </label>
+      `;
+    });
+
+    card.innerHTML = `
+      <div class="q-card-header">
+        <span class="q-badge">Question ${qNumInLevel} of 30 (Overall #${q.id})</span>
+        <span class="q-cat">${q.category}</span>
+      </div>
+      <div class="q-title">${q.q}</div>
+      <div class="options-group">
+        ${optionsHtml}
+      </div>
+      <div class="explanation-box" id="exp-${q.id}">
+        <strong>💡 Key Concept & Explanation:</strong>
+        ${q.exp}
+      </div>
+    `;
+    container.appendChild(card);
+
+    // Palette button
+    const pBtn = document.createElement('button');
+    pBtn.className = `palette-btn ${st.answers[q.id] !== undefined ? 'attempted' : ''}`;
+    pBtn.id = `pbtn-${q.id}`;
+    pBtn.innerText = qNumInLevel;
+    pBtn.onclick = () => {
+      document.getElementById(`qcard-${q.id}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+    palette.appendChild(pBtn);
+  });
+
+  updateLevelStats();
+
+  // If already submitted, apply review mode highlights
+  if (st.submitted) {
+    applyReviewMode(lvlQuestions);
+  } else {
+    document.getElementById('levelResultBanner').style.display = 'none';
+  }
+}
+
+function selectOption(qId, optIdx) {
+  const st = levelStates[currentLevel];
+  if (st.submitted) return;
+
+  st.answers[qId] = optIdx;
+  saveState();
+
+  // Visual selection
+  for (let i = 0; i < 4; i++) {
+    const lbl = document.getElementById(`optlabel-${qId}-${i}`);
+    if (lbl) lbl.classList.toggle('selected', i === optIdx);
+  }
+
+  // Update palette
+  const pBtn = document.getElementById(`pbtn-${qId}`);
+  if (pBtn) pBtn.classList.add('attempted');
+
+  updateLevelStats();
+  renderLevelTrack();
+}
+
+function updateLevelStats() {
+  const st = levelStates[currentLevel];
+  const answered = Object.keys(st.answers).length;
+  document.getElementById('lvlAttemptedPill').innerText = `Answered: ${answered} / 30`;
+  document.getElementById('lvlRemainingPill').innerText = `Remaining: ${30 - answered}`;
+}
+
+function confirmSubmitLevel() {
+  const st = levelStates[currentLevel];
+  if (st.submitted) {
+    alert("You have already completed this level! You can review your score and explanations below, or click 'Proceed to Next Level'.");
+    return;
+  }
+  const answered = Object.keys(st.answers).length;
+  document.getElementById('modalMsg').innerText = `You have answered ${answered} of 30 questions in Level ${currentLevel}.
+
+Ready to complete this level, calculate your score, and unlock Level ${currentLevel < 7 ? currentLevel + 1 : 7}?`;
+  document.getElementById('confirmModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('confirmModal').style.display = 'none';
+}
+
+function submitCurrentLevel() {
+  closeModal();
+  const st = levelStates[currentLevel];
+  st.submitted = true;
+
+  const lvlQuestions = allQuestions.filter(q => q.level === currentLevel);
+  let correct = 0;
+  let wrong = 0;
+  let skipped = 0;
+
+  lvlQuestions.forEach(q => {
+    const userChoice = st.answers[q.id];
+    if (userChoice === undefined) {
+      skipped++;
+    } else if (userChoice === q.ans) {
+      correct++;
+    } else {
+      wrong++;
+    }
+  });
+
+  st.score = correct;
+  const pct = Math.round((correct / 30) * 100);
+  const passed = pct >= 75; // STRICT 75% PASSING THRESHOLD (>= 23 / 30)
+  st.passed = passed;
+
+  const resCard = document.querySelector('.res-card');
+  const nextBtnContainer = document.getElementById('btnNextLevel');
+
+  if (passed) {
+    // 75% OR HIGHER: UNLOCK NEXT LEVEL!
+    if (currentLevel < 7) {
+      levelStates[currentLevel + 1].unlocked = true;
+    }
+    if (resCard) {
+      resCard.style.borderColor = '#10B981';
+      resCard.style.background = '#FFFFFF';
+    }
+
+    let heading = `Level ${currentLevel} Passed! 🌟`;
+    let msg = `Excellent! You scored ${correct} out of 30 (${pct}%). You cleared the 75% requirement. You can now unlock Level ${currentLevel + 1}!`;
+    if (currentLevel === 7) {
+      heading = `Final Level Passed! 🏆 ⭐⭐⭐`;
+      msg = `Outstanding achievement! You cleared all 7 levels with 75%+ score! You are 100% exam ready!`;
+      nextBtnContainer.outerHTML = `<button class="btn btn-next-lvl" id="btnNextLevel" style="background: #059669;" onclick="alert('Congratulations! All 7 levels cleared with 75%+!')">🎉 All 7 Levels Mastered!</button>`;
+    } else {
+      nextBtnContainer.outerHTML = `<button class="btn btn-next-lvl" id="btnNextLevel" onclick="goToNextLevel()">➔ Unlock & Go to Level ${currentLevel + 1}</button>`;
+    }
+    document.getElementById('resLvlHeading').innerText = heading;
+    document.getElementById('resLvlMsg').innerText = msg;
+  } else {
+    // LESS THAN 75%: NEXT LEVEL REMAINS LOCKED! MUST RETAKE!
+    if (currentLevel < 7) {
+      levelStates[currentLevel + 1].unlocked = false; // Keep locked!
+    }
+    if (resCard) {
+      resCard.style.borderColor = '#EF4444';
+      resCard.style.background = '#FFFDFD';
+    }
+
+    const needed = 23 - correct;
+    let heading = `Level ${currentLevel} Failed (75% Required) ⚠️`;
+    let msg = `You scored ${correct} out of 30 (${pct}%). You need at least 23/30 (75%) to proceed (needed ${needed} more correct). Review the answers below and click Retake!`;
+    
+    nextBtnContainer.outerHTML = `
+      <div id="btnNextLevel" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-retry-lvl" onclick="retryCurrentLevel()">🔄 Retake Level ${currentLevel}</button>
+        <button class="btn btn-locked-lvl" disabled>🔒 Level ${currentLevel < 7 ? currentLevel + 1 : 7} Locked (Need 75%)</button>
+      </div>
+    `;
+    document.getElementById('resLvlHeading').innerText = heading;
+    document.getElementById('resLvlMsg').innerText = msg;
+  }
+
+  saveState();
+  renderLevelTrack();
+  applyReviewMode(lvlQuestions);
+
+  // Update Score Metric displays
+  document.getElementById('resLvlPct').innerText = `${pct}%`;
+  document.getElementById('resLvlCorrect').innerText = correct;
+  document.getElementById('resLvlWrong').innerText = wrong;
+  document.getElementById('resLvlSkipped').innerText = skipped;
+
+  document.getElementById('levelResultBanner').style.display = 'block';
+  document.getElementById('levelResultBanner').scrollIntoView({ behavior: 'smooth' });
+}
+
+function retryCurrentLevel() {
+  const st = levelStates[currentLevel];
+  st.submitted = false;
+  st.score = 0;
+  st.answers = {};
+  saveState();
+  renderLevelTrack();
+  loadCurrentLevel();
+  document.getElementById('levelResultBanner').style.display = 'none';
+  window.scrollTo({ top: 120, behavior: 'smooth' });
+}
+
+function applyReviewMode(lvlQuestions) {
+  const st = levelStates[currentLevel];
+
+  lvlQuestions.forEach(q => {
+    const userChoice = st.answers[q.id];
+    const isAnswered = userChoice !== undefined;
+    const isCorrect = userChoice === q.ans;
+
+    // Show explanation
+    const exp = document.getElementById(`exp-${q.id}`);
+    if (exp) exp.style.display = 'block';
+
+    // Disable inputs
+    const card = document.getElementById(`qcard-${q.id}`);
+    if (card) {
+      card.querySelectorAll('input[type="radio"]').forEach(i => i.disabled = true);
+    }
+
+    // Color options
+    for (let i = 0; i < 4; i++) {
+      const lbl = document.getElementById(`optlabel-${q.id}-${i}`);
+      if (!lbl) continue;
+
+      if (i === q.ans) {
+        lbl.classList.add('ans-correct');
+        const b = document.createElement('span');
+        b.className = 'badge-tag tag-correct';
+        b.innerText = '✔ Correct Answer';
+        lbl.appendChild(b);
+      } else if (i === userChoice && !isCorrect) {
+        lbl.classList.add('ans-wrong');
+        const b = document.createElement('span');
+        b.className = 'badge-tag tag-wrong';
+        b.innerText = '✖ Your Choice';
+        lbl.appendChild(b);
+      }
+    }
+
+    // Palette button color
+    const pBtn = document.getElementById(`pbtn-${q.id}`);
+    if (pBtn) {
+      if (isCorrect) pBtn.classList.add('res-correct');
+      else if (isAnswered) pBtn.classList.add('res-wrong');
+    }
+  });
+
+  document.getElementById('levelResultBanner').style.display = 'block';
+}
+
+function goToNextLevel() {
+  if (currentLevel < 7) {
+    switchLevel(currentLevel + 1);
+  } else {
+    alert("You have completed all 7 levels! Review your results or click 'Reset All Levels' to practice again.");
+  }
+}
+
+function resetAllProgress() {
+  if (confirm("Are you sure you want to reset all 7 levels and start fresh from Level 1?")) {
+    localStorage.removeItem('se_level_quiz_state_v1');
+    levelStates = {
+      1: { unlocked: true, submitted: false, score: 0, answers: {} },
+      2: { unlocked: false, submitted: false, score: 0, answers: {} },
+      3: { unlocked: false, submitted: false, score: 0, answers: {} },
+      4: { unlocked: false, submitted: false, score: 0, answers: {} },
+      5: { unlocked: false, submitted: false, score: 0, answers: {} },
+      6: { unlocked: false, submitted: false, score: 0, answers: {} },
+      7: { unlocked: false, submitted: false, score: 0, answers: {} }
+    };
+    currentLevel = 1;
+    saveState();
+    renderLevelTrack();
+    loadCurrentLevel();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// Initialization
+loadSavedState();
+renderLevelTrack();
+loadCurrentLevel();
+</script>
+
+</body>
+</html>
